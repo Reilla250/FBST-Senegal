@@ -33,15 +33,22 @@ export async function POST(req: NextRequest) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    await fs.promises.mkdir(uploadsDir, { recursive: true });
-
     const cleanFilename = file.name ? file.name.replace(/[^a-zA-Z0-9.\-]/g, "_") : "image.jpg";
     const safeName = `${Date.now()}-${cleanFilename}`;
-    const dest = path.join(uploadsDir, safeName);
-    await fs.promises.writeFile(dest, buffer);
 
-    const url = `/uploads/${safeName}`;
-    return NextResponse.json({ ok: true, url, message: "File uploaded successfully" });
+    try {
+      await fs.promises.mkdir(uploadsDir, { recursive: true });
+      const dest = path.join(uploadsDir, safeName);
+      await fs.promises.writeFile(dest, buffer);
+      const url = `/uploads/${safeName}`;
+      return NextResponse.json({ ok: true, url, message: "File uploaded successfully" });
+    } catch (fsError) {
+      // Fallback for read-only filesystem (Vercel serverless): Convert image to Base64 Data URL
+      const mimeType = file.type || "image/jpeg";
+      const base64Data = buffer.toString("base64");
+      const url = `data:${mimeType};base64,${base64Data}`;
+      return NextResponse.json({ ok: true, url, message: "File uploaded via serverless data URL" });
+    }
   } catch (err: any) {
     console.error("Upload error:", err);
     return NextResponse.json({ ok: false, error: err?.message || "File upload failed" }, { status: 500 });

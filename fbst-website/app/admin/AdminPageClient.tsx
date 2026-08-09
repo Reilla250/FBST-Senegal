@@ -193,17 +193,26 @@ export default function AdminPageClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, images: form.images }),
       });
-      const result = await response.json();
+
+      const resText = await response.text();
+      let result;
+      try {
+        result = JSON.parse(resText);
+      } catch {
+        setStatus(`Save error (${response.status}): ${resText.slice(0, 150)}`);
+        return;
+      }
+
       if (!response.ok || !result.ok) {
-        setStatus(result.error || "Unable to save page data.");
+        setStatus(result.error || `Unable to save page data (Status ${response.status}).`);
       } else {
         setPages((current) => current.filter((item) => item.slug !== result.page.slug).concat(result.page));
         setSelectedSlug(result.page.slug);
         setIsCreating(false);
-        setStatus("Page saved successfully.");
+        setStatus("✅ Page saved successfully.");
       }
-    } catch {
-      setStatus("Save failed. Try again.");
+    } catch (err: any) {
+      setStatus(`Save failed: ${err?.message || "Network error. Please try again."}`);
     } finally {
       setSaving(false);
     }
@@ -218,15 +227,24 @@ export default function AdminPageClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(settings),
       });
-      const data = await res.json();
+
+      const resText = await res.text();
+      let data;
+      try {
+        data = JSON.parse(resText);
+      } catch {
+        setStatus(`Error saving settings (${res.status}): ${resText.slice(0, 150)}`);
+        return;
+      }
+
       if (res.ok && data.ok) {
         setSettings(data.settings);
-        setStatus("Site settings saved successfully.");
+        setStatus("✅ Site settings saved successfully.");
       } else {
-        setStatus(data.error || "Failed to save settings.");
+        setStatus(data.error || `Failed to save settings (Status ${res.status}).`);
       }
-    } catch {
-      setStatus("Error saving settings.");
+    } catch (err: any) {
+      setStatus(`Error saving settings: ${err?.message || "Network error"}`);
     } finally {
       setSaving(false);
     }
@@ -239,15 +257,26 @@ export default function AdminPageClient() {
       const res = await fetch(`/api/admin/pages?slug=${encodeURIComponent(slug)}`, {
         method: "DELETE",
       });
-      const data = await res.json();
+
+      const resText = await res.text();
+      let data;
+      try {
+        data = JSON.parse(resText);
+      } catch {
+        setStatus(`Delete error (${res.status}): ${resText.slice(0, 150)}`);
+        return;
+      }
+
       if (res.ok && data.ok) {
         setPages((current) => current.filter((item) => item.slug !== slug));
         setSelectedSlug("");
         setIsCreating(false);
-        setStatus("Page deleted.");
+        setStatus("✅ Page deleted successfully.");
+      } else {
+        setStatus(data.error || `Delete failed (Status ${res.status}).`);
       }
-    } catch {
-      setStatus("Delete failed.");
+    } catch (err: any) {
+      setStatus(`Delete failed: ${err?.message || "Network error"}`);
     } finally {
       setSaving(false);
     }
@@ -295,7 +324,15 @@ export default function AdminPageClient() {
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      const data = await res.json();
+      
+      const resText = await res.text();
+      let data;
+      try {
+        data = JSON.parse(resText);
+      } catch {
+        setStatus(`Upload error (${res.status}): ${resText.slice(0, 150)}`);
+        return null;
+      }
 
       if (res.ok && data.ok && data.url) {
         const newImages = [...(form.images || []), data.url];
@@ -308,13 +345,20 @@ export default function AdminPageClient() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updatedForm),
         });
-        const saveResult = await saveRes.json();
 
-        if (saveRes.ok && saveResult.ok) {
+        const saveText = await saveRes.text();
+        let saveResult;
+        try {
+          saveResult = JSON.parse(saveText);
+        } catch {
+          saveResult = null;
+        }
+
+        if (saveRes.ok && saveResult && saveResult.ok) {
           setPages((current) => current.filter((item) => item.slug !== saveResult.page.slug).concat(saveResult.page));
           setStatus("✅ Image uploaded and saved to page!");
         } else {
-          setStatus("Image uploaded, but please click 'Save page content' to publish.");
+          setStatus("Image uploaded! Please click 'Save page content' to publish.");
         }
 
         if (e) e.target.value = "";

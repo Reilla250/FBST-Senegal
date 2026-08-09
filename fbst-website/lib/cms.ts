@@ -6,6 +6,20 @@ import { unstable_noStore as noStore } from "next/cache";
 
 const CONTENT_PATH = path.join(process.cwd(), "data", "site-content.json");
 const SUBMISSIONS_PATH = path.join(process.cwd(), "data", "submissions.json");
+const SETTINGS_PATH = path.join(process.cwd(), "data", "site-settings.json");
+
+const TMP_CONTENT_PATH = path.join("/tmp", "site-content.json");
+const TMP_SUBMISSIONS_PATH = path.join("/tmp", "submissions.json");
+const TMP_SETTINGS_PATH = path.join("/tmp", "site-settings.json");
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __memoryPagesCache__: PageContent[] | undefined;
+  // eslint-disable-next-line no-var
+  var __memorySettingsCache__: SiteSettings | undefined;
+  // eslint-disable-next-line no-var
+  var __memorySubmissionsCache__: ContactSubmission[] | undefined;
+}
 
 type RawPageContent = {
   slug: string;
@@ -51,8 +65,6 @@ export type SiteSettings = {
   stats: StatItem[];
 };
 
-const SETTINGS_PATH = path.join(process.cwd(), "data", "site-settings.json");
-
 const defaultSettings: SiteSettings = {
   siteName: "FBST-Senegal",
   legalName: "Fondation La Bonne Santé Pour Tous",
@@ -85,9 +97,20 @@ const defaultSettings: SiteSettings = {
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   noStore();
+  if (globalThis.__memorySettingsCache__) {
+    return globalThis.__memorySettingsCache__;
+  }
+  try {
+    const raw = await fs.readFile(TMP_SETTINGS_PATH, "utf-8");
+    const data = { ...defaultSettings, ...JSON.parse(raw) };
+    globalThis.__memorySettingsCache__ = data;
+    return data;
+  } catch {}
   try {
     const raw = await fs.readFile(SETTINGS_PATH, "utf-8");
-    return { ...defaultSettings, ...JSON.parse(raw) };
+    const data = { ...defaultSettings, ...JSON.parse(raw) };
+    globalThis.__memorySettingsCache__ = data;
+    return data;
   } catch {
     return defaultSettings;
   }
@@ -96,37 +119,89 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 export async function saveSiteSettings(settings: Partial<SiteSettings>): Promise<SiteSettings> {
   const current = await getSiteSettings();
   const updated = { ...current, ...settings };
-  await fs.mkdir(path.dirname(SETTINGS_PATH), { recursive: true });
-  await fs.writeFile(SETTINGS_PATH, JSON.stringify(updated, null, 2), "utf-8");
+  globalThis.__memorySettingsCache__ = updated;
+  try {
+    await fs.mkdir(path.dirname(SETTINGS_PATH), { recursive: true });
+    await fs.writeFile(SETTINGS_PATH, JSON.stringify(updated, null, 2), "utf-8");
+  } catch (e) {
+    try {
+      await fs.mkdir(path.dirname(TMP_SETTINGS_PATH), { recursive: true });
+      await fs.writeFile(TMP_SETTINGS_PATH, JSON.stringify(updated, null, 2), "utf-8");
+    } catch (tmpErr) {
+      console.warn("Unable to persist site settings to disk/tmp:", tmpErr);
+    }
+  }
   return updated;
 }
 
 async function readFallbackContent(): Promise<PageContent[]> {
+  if (globalThis.__memoryPagesCache__) {
+    return globalThis.__memoryPagesCache__;
+  }
+  try {
+    const raw = await fs.readFile(TMP_CONTENT_PATH, "utf-8");
+    const pages = JSON.parse(raw) as PageContent[];
+    globalThis.__memoryPagesCache__ = pages;
+    return pages;
+  } catch {}
   try {
     const raw = await fs.readFile(CONTENT_PATH, "utf-8");
-    return JSON.parse(raw) as PageContent[];
+    const pages = JSON.parse(raw) as PageContent[];
+    globalThis.__memoryPagesCache__ = pages;
+    return pages;
   } catch {
     return [];
   }
 }
 
 async function writeFallbackContent(pages: PageContent[]) {
-  await fs.mkdir(path.dirname(CONTENT_PATH), { recursive: true });
-  await fs.writeFile(CONTENT_PATH, JSON.stringify(pages, null, 2), "utf-8");
+  globalThis.__memoryPagesCache__ = pages;
+  try {
+    await fs.mkdir(path.dirname(CONTENT_PATH), { recursive: true });
+    await fs.writeFile(CONTENT_PATH, JSON.stringify(pages, null, 2), "utf-8");
+  } catch (e) {
+    try {
+      await fs.mkdir(path.dirname(TMP_CONTENT_PATH), { recursive: true });
+      await fs.writeFile(TMP_CONTENT_PATH, JSON.stringify(pages, null, 2), "utf-8");
+    } catch (tmpErr) {
+      console.warn("Unable to persist page content to disk/tmp:", tmpErr);
+    }
+  }
 }
 
 async function readFallbackSubmissions(): Promise<ContactSubmission[]> {
+  if (globalThis.__memorySubmissionsCache__) {
+    return globalThis.__memorySubmissionsCache__;
+  }
+  try {
+    const raw = await fs.readFile(TMP_SUBMISSIONS_PATH, "utf-8");
+    const items = JSON.parse(raw) as ContactSubmission[];
+    globalThis.__memorySubmissionsCache__ = items;
+    return items;
+  } catch {}
   try {
     const raw = await fs.readFile(SUBMISSIONS_PATH, "utf-8");
-    return JSON.parse(raw) as ContactSubmission[];
+    const items = JSON.parse(raw) as ContactSubmission[];
+    globalThis.__memorySubmissionsCache__ = items;
+    return items;
   } catch {
     return [];
   }
 }
 
 async function writeFallbackSubmissions(items: ContactSubmission[]) {
-  await fs.mkdir(path.dirname(SUBMISSIONS_PATH), { recursive: true });
-  await fs.writeFile(SUBMISSIONS_PATH, JSON.stringify(items, null, 2), "utf-8");
+  globalThis.__memorySubmissionsCache__ = items;
+  try {
+    await fs.mkdir(path.dirname(SUBMISSIONS_PATH), { recursive: true });
+    await fs.writeFile(SUBMISSIONS_PATH, JSON.stringify(items, null, 2), "utf-8");
+  } catch (e) {
+    try {
+      await fs.mkdir(path.dirname(TMP_SUBMISSIONS_PATH), { recursive: true });
+      await fs.writeFile(TMP_SUBMISSIONS_PATH, JSON.stringify(items, null, 2), "utf-8");
+    } catch (tmpErr) {
+      console.warn("Unable to persist submissions to disk/tmp:", tmpErr);
+    }
+  }
 }
 
 export async function getAllPageData(): Promise<PageContent[]> {

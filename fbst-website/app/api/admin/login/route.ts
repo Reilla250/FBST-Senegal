@@ -3,7 +3,7 @@ import { hasDatabase, query } from "../../../../lib/db";
 import bcrypt from "bcryptjs";
 
 const isProduction = process.env.NODE_ENV === "production";
-const COOKIE_FLAGS = `Path=/; HttpOnly; SameSite=Lax; Max-Age=300${isProduction ? "; Secure" : ""}`;
+const COOKIE_FLAGS = `Path=/; HttpOnly; SameSite=Lax; Max-Age=28800${isProduction ? "; Secure" : ""}`;
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
