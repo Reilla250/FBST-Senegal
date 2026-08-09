@@ -619,10 +619,9 @@ export default function AdminPageClient() {
                               onClick={async () => {
                                 const newImgs = form.images.filter((i) => i !== imgUrl);
                                 setForm({ ...form, images: newImgs });
-                                // If it's a local upload, also delete the file
-                                if (imgUrl.startsWith("/uploads/")) {
-                                  const filename = imgUrl.replace("/uploads/", "");
-                                  await fetch(`/api/admin/upload?file=${encodeURIComponent(filename)}`, { method: "DELETE" }).catch(() => {});
+                                // Delete file from server or Vercel Blob storage
+                                if (imgUrl.startsWith("/uploads/") || imgUrl.includes("blob.vercel-storage.com") || imgUrl.startsWith("https://")) {
+                                  await fetch(`/api/admin/upload?file=${encodeURIComponent(imgUrl)}`, { method: "DELETE" }).catch(() => {});
                                 }
                               }}
                               className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow opacity-90 group-hover:opacity-100"

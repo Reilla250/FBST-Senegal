@@ -7,10 +7,13 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
 
-  // Allow serving images from Unsplash and local uploads
+  // Allow serving images from Unsplash, Vercel Blob, and external hosts
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
+      { protocol: "https", hostname: "public.blob.vercel-storage.com" },
+      { protocol: "https", hostname: "*.blob.vercel-storage.com" },
       { protocol: "https", hostname: "**.amazonaws.com" },
       { protocol: "https", hostname: "**.tidbcloud.com" },
     ],
