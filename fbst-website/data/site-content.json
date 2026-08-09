@@ -1,0 +1,227 @@
+[
+  {
+    "slug": "home",
+    "label": "Home",
+    "title": "Trusted care in Dakar",
+    "description": "FBST-Senegal provides youth-centred support rooted in safety, dignity and community.",
+    "heroHeading": "Trusted pathways to care, education and protection in Dakar.",
+    "heroSubheading": "Community wellbeing",
+    "heroText": "FBST-Senegal supports young people and communities with confidential peer guidance, safe referrals and strength-based programmes.",
+    "heroCtaLabel": "Request support",
+    "heroCtaHref": "/contact",
+    "images": [
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1600&q=80"
+    ],
+    "autoplay": true
+  },
+  {
+    "slug": "about",
+    "label": "About Us",
+    "title": "Rooted in Dakar. Led by community.",
+    "description": "Who FBST-Senegal is, our mission, vision, values and who we serve.",
+    "heroHeading": "Rooted in Dakar. Led by community.",
+    "heroSubheading": "Community-led wellbeing in Senegal",
+    "heroText": "Fondation La Bonne Santé Pour Tous is a youth-led organisation advancing mental wellbeing, safe referral and protection.",
+    "heroCtaLabel": "Read more",
+    "heroCtaHref": "/about",
+    "images": [
+      "https://images.unsplash.com/photo-1485217988980-11786ced9454?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1600&q=80"
+    ],
+    "autoplay": true
+  },
+  {
+    "slug": "programs",
+    "label": "Programs",
+    "title": "Supporting the whole person, not only one problem.",
+    "description": "Youth-focused programs for education, wellbeing, protection and stigma reduction.",
+    "heroHeading": "Supporting the whole person, not only one problem.",
+    "heroSubheading": "Practical programmes for young people",
+    "heroText": "Our programmes combine psychosocial support, safe referral, school return pathways and stigma reduction for young people and communities.",
+    "heroCtaLabel": "View programs",
+    "heroCtaHref": "/programs",
+    "images": [
+      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1496307653780-42ee777d4833?auto=format&fit=crop&w=1600&q=80"
+    ],
+    "autoplay": true
+  },
+  {
+    "slug": "impact",
+    "label": "Impact",
+    "title": "Measured outcomes with real community value.",
+    "description": "Results reported honestly and kept separate from future plans.",
+    "heroHeading": "Results reported honestly, kept separate from future plans.",
+    "heroSubheading": "Impact that communities can trust",
+    "heroText": "We collect evidence, protect confidentiality, and keep people safe in every step of our programmes.",
+    "heroCtaLabel": "See impact",
+    "heroCtaHref": "/impact",
+    "images": [
+      "https://images.unsplash.com/photo-1532619675605-1729b4bdb67d?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1600&q=80"
+    ],
+    "autoplay": true
+  },
+  {
+    "slug": "partnerships",
+    "label": "Partnerships",
+    "title": "Stronger pathways require trusted partners.",
+    "description": "Schools, clinics and networks working with FBST to reach more people safely.",
+    "heroHeading": "Stronger pathways require trusted partners.",
+    "heroSubheading": "Collaboration for safer access",
+    "heroText": "We partner with schools, clinics, community organisations and youth groups to build dignity-focused support pathways.",
+    "heroCtaLabel": "Partner with us",
+    "heroCtaHref": "/partnerships",
+    "images": [
+      "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1600&q=80"
+    ],
+    "autoplay": true
+  },
+  {
+    "slug": "get-involved",
+    "label": "Get Involved",
+    "title": "There are several safe ways to work with FBST.",
+    "description": "Volunteer, partner, refer, or support our mission.",
+    "heroHeading": "There are several safe ways to work with FBST.",
+    "heroSubheading": "Join a trusted movement",
+    "heroText": "Whether you are a volunteer, partner, funder or community member, we make space for support, safeguarding and shared leadership.",
+    "heroCtaLabel": "Get involved",
+    "heroCtaHref": "/get-involved",
+    "images": [
+      "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1496307653780-42ee777d4833?auto=format&fit=crop&w=1600&q=80"
+    ],
+    "autoplay": true
+  },
+  {
+    "slug": "contact",
+    "label": "Contact",
+    "title": "Start with a safe conversation.",
+    "description": "Start a safe, confidential conversation with FBST-Senegal.",
+    "heroHeading": "Start with a safe conversation.",
+    "heroSubheading": "Confidential contact and support",
+    "heroText": "Contact FBST for information, partnership enquiries, referral support or safeguarding concerns.",
+    "heroCtaLabel": "Contact us",
+    "heroCtaHref": "/contact",
+    "images": [
+      "https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1517457373958-d64aecb8b47a?auto=format&fit=crop&w=1600&q=80"
+    ],
+    "autoplay": true
+  },
+  {
+    "slug": "faq",
+    "label": "FAQ",
+    "title": "Frequently asked questions.",
+    "description": "Straight answers about FBST confidentiality, support and services.",
+    "heroHeading": "Frequently asked questions.",
+    "heroSubheading": "Clear answers for people who need support",
+    "heroText": "Learn about how FBST works, what we can offer and what to expect when you contact us.",
+    "heroCtaLabel": "Read FAQ",
+    "heroCtaHref": "/faq",
+    "images": [
+      "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=1600&q=80"
+    ],
+    "autoplay": true
+  },
+  {
+    "slug": "resources",
+    "label": "Resources",
+    "title": "Practical information that protects, not exposes.",
+    "description": "Resources and guidance for people and organisations working with FBST.",
+    "heroHeading": "Practical information that protects, not exposes.",
+    "heroSubheading": "Resources for safe support",
+    "heroText": "Our resources are designed to keep people safe, preserve dignity and support trusted pathways.",
+    "heroCtaLabel": "Explore resources",
+    "heroCtaHref": "/resources",
+    "images": [
+      "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1600&q=80"
+    ],
+    "autoplay": true
+  },
+  {
+    "slug": "safeguarding",
+    "label": "Safeguarding",
+    "title": "Safety, dignity, consent and confidentiality — in every program.",
+    "description": "How FBST protects people and responds to safeguarding concerns.",
+    "heroHeading": "Safety, dignity, consent and confidentiality — in every program.",
+    "heroSubheading": "Trusted safeguarding practice",
+    "heroText": "Our safeguarding standards guide every interaction, from referral to follow-up.",
+    "heroCtaLabel": "Read safeguarding",
+    "heroCtaHref": "/safeguarding",
+    "images": [
+      "https://images.unsplash.com/photo-1496317899792-9d7dbcd928a1?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1600&q=80"
+    ],
+    "autoplay": true
+  },
+  {
+    "slug": "how-we-work",
+    "label": "How We Work",
+    "title": "Six principles behind every conversation.",
+    "description": "The values and approach that shape FBST-Senegal services.",
+    "heroHeading": "Six principles behind every conversation.",
+    "heroSubheading": "Our approach in action",
+    "heroText": "We combine confidentiality, dignity, peer leadership, partnership and safe referral in every support pathway.",
+    "heroCtaLabel": "See how we work",
+    "heroCtaHref": "/how-we-work",
+    "images": [
+      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1497493292307-31c376b6e479?auto=format&fit=crop&w=1600&q=80"
+    ],
+    "autoplay": true
+  },
+  {
+    "slug": "projects",
+    "label": "Successful Projects",
+    "title": "Two pathways, one commitment to safety.",
+    "description": "Project work on youth wellbeing, stigma reduction and protection.",
+    "heroHeading": "Two pathways, one commitment to safety.",
+    "heroSubheading": "Featured projects",
+    "heroText": "FBST supports young people through programmes like NOUVEAU DÉPART and D-WiFI to reduce stigma and improve outcomes.",
+    "heroCtaLabel": "Explore projects",
+    "heroCtaHref": "/projects",
+    "images": [
+      "https://images.unsplash.com/photo-1496317899792-9d7dbcd928a1?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1515165562835-c4c1e5418cdd?auto=format&fit=crop&w=1600&q=80"
+    ],
+    "autoplay": true
+  },
+  {
+    "slug": "projects-nouveau-depart",
+    "label": "NOUVEAU DÉPART",
+    "title": "A difficult season should not decide a young person's whole future.",
+    "description": "A youth pathway supporting school return, mental health and safe referral.",
+    "heroHeading": "A difficult season should not decide a young person's whole future.",
+    "heroSubheading": "NOUVEAU DÉPART project",
+    "heroText": "A pilot pathway offering counselling, school re-entry support and structured follow-up for young people facing stigma or stress.",
+    "heroCtaLabel": "Learn more",
+    "heroCtaHref": "/projects/nouveau-depart",
+    "images": [
+      "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1498759433165-aa41fa51a150?auto=format&fit=crop&w=1600&q=80"
+    ],
+    "autoplay": true
+  },
+  {
+    "slug": "projects-dakar-without-fear",
+    "label": "Dakar Without Fear",
+    "title": "Care should be easier to reach than fear.",
+    "description": "A safer referral and stigma reduction initiative for people affected by HIV and exclusion.",
+    "heroHeading": "Care should be easier to reach than fear.",
+    "heroSubheading": "D-WiFI initiative",
+    "heroText": "The Dakar Without Fear initiative uses trusted peer connections and safe pathways to reduce stigma and improve access.",
+    "heroCtaLabel": "Discover D-WiFI",
+    "heroCtaHref": "/projects/dakar-without-fear",
+    "images": [
+      "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1499393648133-64d7efb1f457?auto=format&fit=crop&w=1600&q=80"
+    ],
+    "autoplay": true
+  }
+]
