@@ -10,8 +10,9 @@
     "heroCtaLabel": "Request support",
     "heroCtaHref": "/contact",
     "images": [
-      "/uploads/1786276636981-ChatGPT_Image_Jun_2__2026__12_52_00_PM.png",
-      "/uploads/1786279150241-Picture1.png"
+      "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=1600&q=80",
+      "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1600&q=80"
     ],
     "autoplay": true
   },
