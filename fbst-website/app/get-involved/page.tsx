@@ -42,7 +42,7 @@ export default function GetInvolvedPage() {
       </Section>
 
       <Section tone="deep" eyebrow="Support our work">
-        <p className="max-w-2xl text-ink/85 leading-relaxed mb-6">
+        <p className="max-w-2xl text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
           Use only the approved contribution or donation channel published by FBST. Do not send
           money to an individual account or an unverified link.
         </p>

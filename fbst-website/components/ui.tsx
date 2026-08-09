@@ -6,8 +6,14 @@ export function BulletList({ items }: { items: ReactNode[] }) {
     <ul className="space-y-3">
       {items.map((item, i) => (
         <li key={i} className="flex gap-3 items-start">
-          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-baobab" aria-hidden="true" />
-          <span className="text-ink/85 leading-relaxed">{item}</span>
+          <span
+            className="mt-1 flex-shrink-0 font-bold text-base"
+            style={{ color: "#08B4D0" }}
+            aria-hidden="true"
+          >
+            ✓
+          </span>
+          <span className="leading-relaxed text-sm sm:text-base" style={{ color: "#555C68" }}>{item}</span>
         </li>
       ))}
     </ul>
@@ -25,12 +31,17 @@ export function Card({
 }) {
   return (
     <div
-      className={`rounded-2xl border p-6 sm:p-7 ${
-        tone === "deep" ? "bg-sand-deep border-baobab/15" : "bg-white/60 border-baobab/10"
-      }`}
+      className="card-hover rounded border p-6 sm:p-7 transition-colors"
+      style={{
+        background: tone === "deep" ? "#F0F2F5" : "#FFFFFF",
+        borderColor: "#E0E3E8",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+      }}
     >
-      <h3 className="font-display text-lg font-semibold text-baobab-dark mb-2">{title}</h3>
-      <div className="text-sm text-ink/80 leading-relaxed">{children}</div>
+      {/* Cyan top border accent like Porto cards */}
+      <div className="w-10 h-0.5 mb-4" style={{ background: "#08B4D0" }} />
+      <h3 className="font-display text-lg font-bold mb-2" style={{ color: "#1E2430" }}>{title}</h3>
+      <div className="text-sm leading-relaxed" style={{ color: "#555C68" }}>{children}</div>
     </div>
   );
 }
@@ -47,21 +58,26 @@ export function CTA({
   secondary?: { label: string; href: string };
 }) {
   return (
-    <div className="rounded-3xl bg-baobab text-sand px-6 py-10 sm:px-12 sm:py-14 text-center">
-      <h2 className="font-display text-2xl sm:text-3xl font-semibold mb-3">{heading}</h2>
-      {text && <p className="text-sand/85 max-w-xl mx-auto mb-7 leading-relaxed">{text}</p>}
-      <div className="flex flex-wrap justify-center gap-3">
-        <Link
-          href={primary.href}
-          className="inline-flex items-center rounded-full bg-baobab px-6 py-3 text-sm font-semibold text-ink hover:bg-baobab-dark transition-colors"
-        >
-          {primary.label}
+    <div
+      className="rounded text-center px-6 py-12 sm:px-12 sm:py-16"
+      style={{ background: "#1E2430" }}
+    >
+      {/* Cyan accent line above heading */}
+      <div className="w-12 h-1 mx-auto mb-6" style={{ background: "#08B4D0" }} />
+      <h2 className="font-display text-2xl sm:text-3xl font-bold mb-4" style={{ color: "#FFFFFF" }}>
+        {heading}
+      </h2>
+      {text && (
+        <p className="max-w-xl mx-auto mb-8 text-sm sm:text-base leading-relaxed" style={{ color: "#A8B2BF" }}>
+          {text}
+        </p>
+      )}
+      <div className="flex flex-wrap justify-center gap-4">
+        <Link href={primary.href} className="btn-primary">
+          {primary.label} →
         </Link>
         {secondary && (
-          <Link
-            href={secondary.href}
-            className="inline-flex items-center rounded-full border border-sand/40 px-6 py-3 text-sm font-semibold text-sand hover:bg-sand/10 transition-colors"
-          >
+          <Link href={secondary.href} className="btn-outline">
             {secondary.label}
           </Link>
         )}
@@ -79,32 +95,17 @@ export function ButtonRow({
 }) {
   return (
     <div className="flex flex-wrap gap-3">
-      {buttons.map((b, i) => {
-        if (b.variant !== "outline") {
-          return (
-            <Link
-              key={i}
-              href={b.href}
-              className="inline-flex items-center rounded-full bg-baobab px-6 py-3 text-sm font-semibold text-ink hover:bg-baobab-dark transition-colors"
-            >
-              {b.label}
-            </Link>
-          );
-        }
-        return (
-          <Link
-            key={i}
-            href={b.href}
-            className={
-              onDark
-                ? "inline-flex items-center rounded-full border border-sand/50 px-6 py-3 text-sm font-semibold text-sand hover:bg-sand/10 transition-colors"
-                : "inline-flex items-center rounded-full border border-baobab/35 px-6 py-3 text-sm font-semibold text-baobab-dark hover:bg-baobab/10 transition-colors"
-            }
-          >
+      {buttons.map((b, i) =>
+        b.variant !== "outline" ? (
+          <Link key={i} href={b.href} className="btn-primary">
             {b.label}
           </Link>
-        );
-      })}
+        ) : (
+          <Link key={i} href={b.href} className="btn-outline">
+            {b.label}
+          </Link>
+        )
+      )}
     </div>
   );
 }

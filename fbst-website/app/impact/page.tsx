@@ -49,11 +49,11 @@ export default function ImpactPage() {
 
       <Section eyebrow="What these results mean">
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl">
-          <p className="text-ink/85 leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm sm:text-base">
             For NOUVEAU DÉPART, success means a young person feels less alone, receives safer
             support and takes a realistic step toward wellbeing and education.
           </p>
-          <p className="text-ink/85 leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm sm:text-base">
             For D-WiFI, success means a person who feared services can ask questions safely,
             accept a referral, return to treatment or seek protection without being exposed.
           </p>

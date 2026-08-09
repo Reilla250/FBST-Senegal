@@ -52,20 +52,25 @@ export default function ProgramsPage() {
       </PageHero>
 
       <Section>
-        <div className="space-y-12">
+        <div className="space-y-5">
           {programs.map((p) => (
-            <div key={p.n} className="grid sm:grid-cols-[80px_1fr] gap-4 sm:gap-8 border-b border-baobab/10 pb-10 last:border-0">
-              <span
-                className="text-3xl text-baobab-dark/70"
-                style={{ fontFamily: "var(--font-data)" }}
-              >
-                {p.n}
-              </span>
-              <div>
-                <h2 className="font-display text-xl sm:text-2xl font-semibold text-baobab-dark mb-2">
-                  {p.title}
-                </h2>
-                <p className="text-ink/85 leading-relaxed max-w-2xl">{p.text}</p>
+            <div
+              key={p.n}
+              className="card-hover rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 sm:p-8 shadow-sm"
+            >
+              <div className="flex items-start gap-5">
+                <span
+                  className="text-3xl font-extrabold text-blue-900 dark:text-blue-400 flex-shrink-0 leading-none"
+                  style={{ fontFamily: "var(--font-data)" }}
+                >
+                  {p.n}
+                </span>
+                <div>
+                  <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                    {p.title}
+                  </h2>
+                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm sm:text-base">{p.text}</p>
+                </div>
               </div>
             </div>
           ))}

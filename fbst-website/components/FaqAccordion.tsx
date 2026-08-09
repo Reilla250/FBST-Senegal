@@ -10,7 +10,7 @@ export default function FaqAccordion({ faqs }: FaqAccordionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <div className="max-w-3xl divide-y divide-baobab/15 border-y border-baobab/15">
+    <div className="max-w-3xl divide-y divide-baobab/15 border-y border-slate-200 dark:border-slate-800">
       {faqs.map(([q, a], i) => {
         const isOpen = openIndex === i;
         return (
@@ -20,12 +20,12 @@ export default function FaqAccordion({ faqs }: FaqAccordionProps) {
               aria-expanded={isOpen}
               className="flex w-full items-start justify-between gap-4 py-5 text-left"
             >
-              <span className="font-display text-lg font-medium text-baobab-dark">{q}</span>
-              <span className="mt-1 shrink-0 text-baobab text-xl leading-none" aria-hidden="true">
+              <span className="font-display text-lg font-medium text-blue-900 dark:text-blue-400">{q}</span>
+              <span className="mt-1 shrink-0 text-blue-800 dark:text-blue-400 text-xl leading-none" aria-hidden="true">
                 {isOpen ? "−" : "+"}
               </span>
             </button>
-            {isOpen && <p className="pb-5 pr-8 text-ink/85 leading-relaxed">{a}</p>}
+            {isOpen && <p className="pb-5 pr-8 text-slate-600 dark:text-slate-300 leading-relaxed">{a}</p>}
           </div>
         );
       })}

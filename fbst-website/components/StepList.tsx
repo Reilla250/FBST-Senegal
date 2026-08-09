@@ -2,19 +2,21 @@ type Step = { title?: string; text: string };
 
 export default function StepList({ steps }: { steps: Step[] }) {
   return (
-    <ol className="relative border-l border-baobab/25 ml-3 space-y-8">
+    <ol className="space-y-6">
       {steps.map((step, i) => (
-        <li key={i} className="pl-8 relative">
+        <li key={i} className="flex gap-4 items-start">
           <span
-            className="absolute -left-[19px] top-0 flex h-9 w-9 items-center justify-center rounded-full bg-baobab text-sand text-sm font-semibold"
-            style={{ fontFamily: "var(--font-data)" }}
+            className="flex-shrink-0 flex h-9 w-9 items-center justify-center rounded text-white text-sm font-bold"
+            style={{ background: "#08B4D0", fontFamily: "var(--font-data)" }}
           >
             {i + 1}
           </span>
-          {step.title && (
-            <p className="font-display text-lg font-semibold text-baobab-dark mb-1">{step.title}</p>
-          )}
-          <p className="text-ink/85 leading-relaxed">{step.text}</p>
+          <div className="pt-1">
+            {step.title && (
+              <p className="font-display text-lg font-bold mb-1" style={{ color: "#1E2430" }}>{step.title}</p>
+            )}
+            <p className="leading-relaxed text-sm sm:text-base" style={{ color: "#555C68" }}>{step.text}</p>
+          </div>
         </li>
       ))}
     </ol>

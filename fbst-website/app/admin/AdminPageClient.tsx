@@ -17,6 +17,30 @@ type PageData = {
   autoplay: boolean;
 };
 
+type Submission = {
+  id: string;
+  receivedAt: string;
+  name: string;
+  contact: string;
+  reason: string;
+  preferredMethod: string;
+  preferredTime?: string;
+  message: string;
+  consent: boolean;
+};
+
+type SiteSettings = {
+  siteName: string;
+  legalName: string;
+  registrationNo: string;
+  email: string;
+  phone: string;
+  address: string;
+  primaryNav: { label: string; href: string }[];
+  programs: { n: string; title: string; text: string }[];
+  stats: { value: string; label: string }[];
+};
+
 const initialForm: PageData = {
   slug: "",
   label: "",
@@ -40,7 +64,21 @@ function splitImages(value: string) {
 
 export default function AdminPageClient() {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+  const [activeTab, setActiveTab] = useState<"pages" | "settings" | "programs" | "messages">("pages");
   const [pages, setPages] = useState<PageData[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [settings, setSettings] = useState<SiteSettings>({
+    siteName: "FBST-Senegal",
+    legalName: "Fondation La Bonne Santé Pour Tous",
+    registrationNo: "978",
+    email: "info@fdnlabonnesantepourtous.org",
+    phone: "+221 77 857 70 78",
+    address: "Dakar, Senegal",
+    primaryNav: [],
+    programs: [],
+    stats: [],
+  });
+
   const [selectedSlug, setSelectedSlug] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [form, setForm] = useState<PageData>(initialForm);
@@ -53,24 +91,73 @@ export default function AdminPageClient() {
       .then((m) => {
         setAuthenticated(Boolean(m.authenticated));
         if (m.authenticated) {
-          fetch("/api/admin/pages")
-            .then((res) => res.json())
-            .then((data: PageData[]) => {
-              setPages(data);
-              if (data.length > 0) setSelectedSlug(data[0].slug);
-            })
-            .catch(() => setStatus("Unable to load admin pages. Check your backend."));
+          loadPages();
+          loadSubmissions();
+          loadSettings();
         }
       })
       .catch(() => setStatus("Unable to validate admin session."));
   }, []);
+
+  // Auto-logout after 5 minutes of inactivity (no mouse, keyboard or touch activity)
+  useEffect(() => {
+    if (!authenticated) return;
+
+    let timer: NodeJS.Timeout;
+    const FIVE_MINUTES = 5 * 60 * 1000;
+
+    const resetTimer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        handleLogout();
+        setStatus("🔒 Session expired after 5 minutes of inactivity.");
+      }, FIVE_MINUTES);
+    };
+
+    resetTimer();
+
+    const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+    events.forEach((evt) => window.addEventListener(evt, resetTimer));
+
+    return () => {
+      clearTimeout(timer);
+      events.forEach((evt) => window.removeEventListener(evt, resetTimer));
+    };
+  }, [authenticated]);
+
+  function loadPages() {
+    fetch("/api/admin/pages")
+      .then((res) => res.json())
+      .then((data: PageData[]) => {
+        setPages(data);
+        if (data.length > 0 && !selectedSlug) setSelectedSlug(data[0].slug);
+      })
+      .catch(() => setStatus("Unable to load pages."));
+  }
+
+  function loadSubmissions() {
+    fetch("/api/admin/submissions")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ok) setSubmissions(data.submissions || []);
+      })
+      .catch(() => {});
+  }
+
+  function loadSettings() {
+    fetch("/api/admin/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ok && data.settings) setSettings(data.settings);
+      })
+      .catch(() => {});
+  }
 
   useEffect(() => {
     if (isCreating) {
       setForm(initialForm);
       return;
     }
-
     const page = pages.find((item) => item.slug === selectedSlug);
     if (page) {
       setForm(page);
@@ -88,7 +175,7 @@ export default function AdminPageClient() {
     setForm({ ...initialForm, autoplay: true });
   }
 
-  async function handleSave() {
+  async function handleSavePage() {
     if (!authenticated) {
       setStatus("You must be logged in to save.");
       return;
@@ -104,10 +191,7 @@ export default function AdminPageClient() {
       const response = await fetch("/api/admin/pages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          images: form.images,
-        }),
+        body: JSON.stringify({ ...form, images: form.images }),
       });
       const result = await response.json();
       if (!response.ok || !result.ok) {
@@ -116,39 +200,52 @@ export default function AdminPageClient() {
         setPages((current) => current.filter((item) => item.slug !== result.page.slug).concat(result.page));
         setSelectedSlug(result.page.slug);
         setIsCreating(false);
-        setStatus("Saved successfully.");
+        setStatus("Page saved successfully.");
       }
     } catch {
-      setStatus("Save failed. Check your connection and try again.");
+      setStatus("Save failed. Try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleSaveSettings() {
+    if (!authenticated) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setSettings(data.settings);
+        setStatus("Site settings saved successfully.");
+      } else {
+        setStatus(data.error || "Failed to save settings.");
+      }
+    } catch {
+      setStatus("Error saving settings.");
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDeletePage(slug: string) {
-    if (!authenticated) {
-      setStatus("Login first.");
-      return;
-    }
-    if (!confirm(`Delete page ${slug}?`)) {
-      return;
-    }
-
+    if (!authenticated || !confirm(`Delete page ${slug}?`)) return;
     setSaving(true);
     try {
       const res = await fetch(`/api/admin/pages?slug=${encodeURIComponent(slug)}`, {
         method: "DELETE",
       });
       const data = await res.json();
-      if (!res.ok || !data.ok) {
-        setStatus(data.error || "Unable to delete page.");
-        return;
+      if (res.ok && data.ok) {
+        setPages((current) => current.filter((item) => item.slug !== slug));
+        setSelectedSlug("");
+        setIsCreating(false);
+        setStatus("Page deleted.");
       }
-
-      setPages((current) => current.filter((item) => item.slug !== slug));
-      setSelectedSlug("");
-      setIsCreating(false);
-      setStatus("Page deleted.");
     } catch {
       setStatus("Delete failed.");
     } finally {
@@ -167,10 +264,10 @@ export default function AdminPageClient() {
       const data = await res.json();
       if (res.ok && data.ok) {
         setAuthenticated(true);
-        setStatus("Logged in.");
-        const p = await fetch("/api/admin/pages");
-        const pagesData = await p.json();
-        setPages(pagesData);
+        setStatus("Logged in successfully.");
+        loadPages();
+        loadSubmissions();
+        loadSettings();
       } else {
         setStatus(data.error || "Login failed");
       }
@@ -181,299 +278,566 @@ export default function AdminPageClient() {
     }
   }
 
-  async function handleUpload(file: File | null) {
-    if (!file) return null;
-    if (!authenticated) {
-      setStatus("Please login before uploading.");
+  async function handleLogout() {
+    await fetch("/api/admin/logout", { method: "POST" });
+    setAuthenticated(false);
+    setStatus("Logged out.");
+  }
+
+  async function handleUpload(file: File | null, e?: React.ChangeEvent<HTMLInputElement>) {
+    if (!file || !authenticated) {
+      setStatus("Please log in as admin to upload images.");
       return null;
     }
     setSaving(true);
+    setStatus("Uploading image...");
     try {
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
       const data = await res.json();
-      if (res.ok && data.ok) {
-        setForm((cur) => ({ ...cur, images: [...(cur.images || []), data.url] }));
-        setStatus("Upload successful.");
+
+      if (res.ok && data.ok && data.url) {
+        const newImages = [...(form.images || []), data.url];
+        const updatedForm = { ...form, images: newImages };
+        setForm(updatedForm);
+
+        // Auto-save page content to persist the new image URL immediately
+        const saveRes = await fetch("/api/admin/pages", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedForm),
+        });
+        const saveResult = await saveRes.json();
+
+        if (saveRes.ok && saveResult.ok) {
+          setPages((current) => current.filter((item) => item.slug !== saveResult.page.slug).concat(saveResult.page));
+          setStatus("✅ Image uploaded and saved to page!");
+        } else {
+          setStatus("Image uploaded, but please click 'Save page content' to publish.");
+        }
+
+        if (e) e.target.value = "";
         return data.url;
+      } else {
+        setStatus(`Upload failed: ${data.error || "Unknown error"}`);
       }
-      setStatus(data.error || "Upload failed");
-      return null;
-    } catch {
-      setStatus("Upload error");
-      return null;
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleRemoveImage(imageUrl: string) {
-    if (!authenticated) {
-      setStatus("Login first.");
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const fileName = imageUrl.replace("/uploads/", "");
-      const res = await fetch(`/api/admin/upload?file=${encodeURIComponent(fileName)}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      if (!res.ok || !data.ok) {
-        setStatus(data.error || "Unable to delete image.");
-        return;
-      }
-
-      setForm((cur) => ({ ...cur, images: cur.images.filter((img) => img !== imageUrl) }));
-      setStatus("Image deleted.");
-    } catch {
-      setStatus("Image delete failed.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function showDbSchema() {
-    if (!authenticated) {
-      setStatus("Please login to view DB schema.");
-      return;
-    }
-    setSaving(true);
-    try {
-      const res = await fetch("/api/admin/db-schema");
-      if (!res.ok) {
-        setStatus("Unable to fetch DB schema.");
-        return;
-      }
-      const text = await res.text();
-      await navigator.clipboard.writeText(text);
-      setStatus("DB schema copied to clipboard.");
-    } catch {
-      setStatus("Error fetching DB schema.");
+    } catch (err: any) {
+      setStatus(`Upload failed: ${err?.message || "Network error"}`);
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-5 sm:px-8 py-16">
+    <div className="mx-auto max-w-6xl px-5 sm:px-8 py-12">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-6 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-widest text-teal-700 dark:text-teal-400">Master CMS Control Panel</p>
+          <h1 className="text-3xl font-display font-bold text-slate-900 dark:text-white mt-1">Full System Admin</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Complete power to modify pages, titles, programs, navigation, contact info & messages.</p>
+        </div>
+        {authenticated && (
+          <button onClick={handleLogout} className="btn-outline text-xs">
+            Sign out
+          </button>
+        )}
+      </div>
+
+      {/* Login Form */}
       {authenticated === false && (
-        <div className="mb-8 rounded-2xl border border-baobab/15 bg-card p-6">
-          <h2 className="text-lg font-semibold mb-3">Admin sign in</h2>
+        <div className="max-w-md mx-auto my-12 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-8 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Admin Login</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
+            Sign in to access full site management tools.
+          </p>
           <LoginForm onLogin={handleLogin} loading={saving} />
-          <p className="mt-3 text-sm text-ink/70">Use environment ADMIN_USER / ADMIN_PASS to sign in.</p>
         </div>
       )}
-      <div className="mb-10">
-        <p className="text-sm uppercase tracking-[0.32em] text-baobab font-semibold">Business admin</p>
-        <h1 className="mt-4 text-4xl font-display font-semibold text-baobab-dark">Business content editor</h1>
-        <p className="mt-3 max-w-2xl text-ink/80 leading-relaxed">
-          Use this admin dashboard to update business-facing page content, hero imagery, and responsive site text. Save changes and the site will display them.
-        </p>
-        <div className="mt-4">
-          <button onClick={showDbSchema} className="rounded-full bg-slate-100 px-3 py-2 text-sm">
-            Copy DB schema to clipboard
-          </button>
-        </div>
-      </div>
 
-      <div className="flex flex-col gap-6 xl:flex-row xl:gap-8">
-        <aside className="shrink-0 rounded-3xl border border-baobab/15 bg-sand-deep p-6 xl:w-[300px]">
-          <div className="flex items-center justify-between gap-4 mb-6">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.25em] text-baobab-dark">Pages</h2>
+      {/* Admin Panel when Logged In */}
+      {authenticated && (
+        <div>
+          {/* Navigation Tabs */}
+          <div className="flex flex-wrap gap-2 mb-6 border-b border-slate-200 dark:border-slate-800 pb-3">
             <button
-              type="button"
-              onClick={handleNewPage}
-              className="rounded-full bg-baobab px-3 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-sand hover:bg-baobab-dark transition-colors"
+              onClick={() => setActiveTab("pages")}
+              className={`px-4 py-2 text-xs font-bold rounded uppercase tracking-wider transition-colors ${
+                activeTab === "pages"
+                  ? "bg-teal-600 text-white"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+              }`}
             >
-              New
+              📄 Pages & Content
+            </button>
+            <button
+              onClick={() => setActiveTab("settings")}
+              className={`px-4 py-2 text-xs font-bold rounded uppercase tracking-wider transition-colors ${
+                activeTab === "settings"
+                  ? "bg-teal-600 text-white"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+              }`}
+            >
+              ⚙️ Organization & Contact Info
+            </button>
+            <button
+              onClick={() => setActiveTab("programs")}
+              className={`px-4 py-2 text-xs font-bold rounded uppercase tracking-wider transition-colors ${
+                activeTab === "programs"
+                  ? "bg-teal-600 text-white"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+              }`}
+            >
+              📊 Programs & Impact Stats
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab("messages");
+                loadSubmissions();
+              }}
+              className={`px-4 py-2 text-xs font-bold rounded uppercase tracking-wider transition-colors ${
+                activeTab === "messages"
+                  ? "bg-teal-600 text-white"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+              }`}
+            >
+              ✉️ Form Enquiries ({submissions.length})
             </button>
           </div>
-          <div className="space-y-3">
-            {pageOptions.length > 0 ? (
-              pageOptions.map((page) => (
-                <div key={page.value} className="flex items-center justify-between gap-2 rounded-2xl bg-card/80 px-4 py-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedSlug(page.value);
-                      setIsCreating(false);
-                    }}
-                    className={`text-left text-sm transition ${
-                      page.value === selectedSlug && !isCreating ? "text-baobab" : "text-baobab-dark hover:text-baobab"
-                    }`}
-                  >
-                    {page.label}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDeletePage(page.value)}
-                    className="text-xs text-rose hover:underline"
-                  >
-                    Delete
+
+          {status && (
+            <div className="mb-4 p-3 rounded bg-teal-50 border border-teal-200 text-teal-900 text-xs font-bold">
+              {status}
+            </div>
+          )}
+
+          {/* TAB 1: Pages Editor */}
+          {activeTab === "pages" && (
+            <div className="flex flex-col gap-6 xl:flex-row xl:gap-8">
+              <aside className="shrink-0 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-5 xl:w-[280px]">
+                <div className="flex items-center justify-between gap-4 mb-4">
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300">Site Pages</h2>
+                  <button type="button" onClick={handleNewPage} className="btn-primary text-xs px-3 py-1">
+                    + New
                   </button>
                 </div>
-              ))
-            ) : (
-              <p className="text-sm text-ink/70">No pages found. Create one using the New button.</p>
-            )}
-          </div>
-        </aside>
-
-        <section className="rounded-3xl border border-baobab/15 bg-card p-6 shadow-sm flex-1">
-          <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-            <label className="space-y-2 text-sm text-ink/80">
-              Page slug
-              <input
-                value={form.slug}
-                onChange={(event) => setForm({ ...form, slug: event.target.value })}
-                disabled={!isCreating}
-                placeholder="home or about"
-                className="w-full rounded-2xl border border-baobab/20 bg-card px-4 py-3 text-sm text-ink"
-              />
-            </label>
-            <label className="space-y-2 text-sm text-ink/80">
-              Page label
-              <input
-                value={form.label}
-                onChange={(event) => setForm({ ...form, label: event.target.value })}
-                className="w-full rounded-2xl border border-baobab/20 px-4 py-3 text-sm text-baobab-dark"
-              />
-            </label>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-[1fr_1fr] mt-6">
-            <label className="space-y-2 text-sm text-ink/80">
-              Browser title
-              <input
-                value={form.title}
-                onChange={(event) => setForm({ ...form, title: event.target.value })}
-                className="w-full rounded-2xl border border-baobab/20 px-4 py-3 text-sm text-baobab-dark"
-              />
-            </label>
-            <label className="space-y-2 text-sm text-ink/80">
-              Meta description
-              <input
-                value={form.description}
-                onChange={(event) => setForm({ ...form, description: event.target.value })}
-                className="w-full rounded-2xl border border-baobab/20 px-4 py-3 text-sm text-baobab-dark"
-              />
-            </label>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-[1fr_1fr] mt-6">
-            <label className="space-y-2 text-sm text-ink/80">
-              Hero heading
-              <input
-                value={form.heroHeading}
-                onChange={(event) => setForm({ ...form, heroHeading: event.target.value })}
-                className="w-full rounded-2xl border border-baobab/20 px-4 py-3 text-sm text-baobab-dark"
-              />
-            </label>
-            <label className="space-y-2 text-sm text-ink/80">
-              Hero subheading
-              <input
-                value={form.heroSubheading ?? ""}
-                onChange={(event) => setForm({ ...form, heroSubheading: event.target.value })}
-                className="w-full rounded-2xl border border-baobab/20 px-4 py-3 text-sm text-baobab-dark"
-              />
-            </label>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-[1fr_1fr] mt-6">
-            <label className="space-y-2 text-sm text-ink/80">
-              Hero CTA label
-              <input
-                value={form.heroCtaLabel ?? ""}
-                onChange={(event) => setForm({ ...form, heroCtaLabel: event.target.value })}
-                className="w-full rounded-2xl border border-baobab/20 px-4 py-3 text-sm text-baobab-dark"
-              />
-            </label>
-            <label className="space-y-2 text-sm text-ink/80">
-              Hero CTA URL
-              <input
-                value={form.heroCtaHref ?? ""}
-                onChange={(event) => setForm({ ...form, heroCtaHref: event.target.value })}
-                className="w-full rounded-2xl border border-baobab/20 px-4 py-3 text-sm text-baobab-dark"
-              />
-            </label>
-          </div>
-
-          <label className="mt-6 block text-sm text-ink/80">
-            Hero text
-            <textarea
-              value={form.heroText ?? ""}
-              onChange={(event) => setForm({ ...form, heroText: event.target.value })}
-              rows={5}
-              className="mt-2 w-full rounded-3xl border border-baobab/20 px-4 py-3 text-sm text-baobab-dark"
-            />
-          </label>
-
-          <label className="mt-6 block text-sm text-ink/80">
-            Background image URLs (one per line)
-            <div className="mt-2 flex flex-col gap-3">
-              <textarea
-                value={form.images.join("\n")}
-                onChange={(event) => setForm({ ...form, images: splitImages(event.target.value) })}
-                rows={4}
-                className="w-full rounded-3xl border border-baobab/20 px-4 py-3 text-sm text-baobab-dark"
-              />
-              <div className="flex items-center gap-3">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const f = e.currentTarget.files ? e.currentTarget.files[0] : null;
-                    if (f) handleUpload(f);
-                  }}
-                  className="text-sm"
-                />
-                <span className="text-sm text-ink/70">Upload an image to add to the list.</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {form.images.map((img) => (
-                  <div key={img} className="relative">
-                    <img src={img} alt="preview" className="h-16 w-24 object-cover rounded-md" />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage(img)}
-                      className="absolute right-1 top-1 rounded-full bg-black/70 px-2 py-1 text-[10px] text-white"
+                <div className="space-y-2">
+                  {pageOptions.map((page) => (
+                    <div
+                      key={page.value}
+                      className={`flex items-center justify-between gap-2 rounded px-3.5 py-2.5 transition-colors border ${
+                        page.value === selectedSlug && !isCreating
+                          ? "bg-white dark:bg-slate-800 border-teal-600 font-bold"
+                          : "bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700"
+                      }`}
                     >
-                      Remove
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedSlug(page.value);
+                          setIsCreating(false);
+                        }}
+                        className="text-left text-sm text-slate-800 dark:text-slate-200 hover:text-teal-700 truncate flex-1"
+                      >
+                        {page.label}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeletePage(page.value)}
+                        className="text-xs text-red-600 hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </aside>
+
+              <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm flex-1">
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <label className="space-y-1 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                    Page Slug
+                    <input
+                      value={form.slug}
+                      onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                      disabled={!isCreating}
+                      placeholder="home, about, programs"
+                      className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                    />
+                  </label>
+                  <label className="space-y-1 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                    Page Label
+                    <input
+                      value={form.label}
+                      onChange={(e) => setForm({ ...form, label: e.target.value })}
+                      className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                    />
+                  </label>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2 mt-4">
+                  <label className="space-y-1 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                    Browser Title
+                    <input
+                      value={form.title}
+                      onChange={(e) => setForm({ ...form, title: e.target.value })}
+                      className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                    />
+                  </label>
+                  <label className="space-y-1 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                    Meta Description
+                    <input
+                      value={form.description}
+                      onChange={(e) => setForm({ ...form, description: e.target.value })}
+                      className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                    />
+                  </label>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2 mt-4">
+                  <label className="space-y-1 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                    Hero Heading
+                    <input
+                      value={form.heroHeading}
+                      onChange={(e) => setForm({ ...form, heroHeading: e.target.value })}
+                      className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                    />
+                  </label>
+                  <label className="space-y-1 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                    Hero Subheading
+                    <input
+                      value={form.heroSubheading ?? ""}
+                      onChange={(e) => setForm({ ...form, heroSubheading: e.target.value })}
+                      className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                    />
+                  </label>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2 mt-4">
+                  <label className="space-y-1 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                    Hero CTA Button Label
+                    <input
+                      value={form.heroCtaLabel ?? ""}
+                      onChange={(e) => setForm({ ...form, heroCtaLabel: e.target.value })}
+                      className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                    />
+                  </label>
+                  <label className="space-y-1 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                    Hero CTA Button URL
+                    <input
+                      value={form.heroCtaHref ?? ""}
+                      onChange={(e) => setForm({ ...form, heroCtaHref: e.target.value })}
+                      className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                    />
+                  </label>
+                </div>
+
+                <label className="mt-4 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                  Hero Text
+                  <textarea
+                    value={form.heroText ?? ""}
+                    onChange={(e) => setForm({ ...form, heroText: e.target.value })}
+                    rows={3}
+                    className="mt-1 w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                  />
+                </label>
+
+                <label className="mt-4 block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                  Background Images
+                  <div className="mt-1 flex flex-col gap-3">
+                    <textarea
+                      value={form.images.join("\n")}
+                      onChange={(e) => setForm({ ...form, images: splitImages(e.target.value) })}
+                      rows={3}
+                      className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm font-normal text-slate-900 dark:text-slate-100"
+                    />
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const f = e.currentTarget.files ? e.currentTarget.files[0] : null;
+                          if (f) handleUpload(f, e);
+                        }}
+                        className="text-xs text-slate-700 dark:text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-800 hover:file:bg-teal-100 cursor-pointer"
+                      />
+                      <span className="text-xs text-slate-500">Auto-saves upon selecting an image file.</span>
+                    </div>
+
+                    {form.images.length > 0 && (
+                      <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-3">
+                        {form.images.map((imgUrl) => (
+                          <div key={imgUrl} className="relative group rounded overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 aspect-video">
+                            <img src={imgUrl} alt="Hero background preview" className="w-full h-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newImgs = form.images.filter((i) => i !== imgUrl);
+                                setForm({ ...form, images: newImgs });
+                                handleRemoveImage(imgUrl);
+                              }}
+                              className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow opacity-90 group-hover:opacity-100"
+                              title="Remove image"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                ))}
+                </label>
+
+                <div className="mt-6 flex justify-end border-t border-slate-200 dark:border-slate-700 pt-4">
+                  <button type="button" disabled={saving} onClick={handleSavePage} className="btn-primary">
+                    {saving ? "Saving..." : "Save page content →"}
+                  </button>
+                </div>
+              </section>
+            </div>
+          )}
+
+          {/* TAB 2: Organization Settings */}
+          {activeTab === "settings" && (
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Organization & Contact Info</h2>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="space-y-1 text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
+                  Public Site Name
+                  <input
+                    value={settings.siteName}
+                    onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
+                    className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                  />
+                </label>
+                <label className="space-y-1 text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
+                  Full Legal Name
+                  <input
+                    value={settings.legalName}
+                    onChange={(e) => setSettings({ ...settings, legalName: e.target.value })}
+                    className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                  />
+                </label>
+                <label className="space-y-1 text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
+                  Registration Number
+                  <input
+                    value={settings.registrationNo}
+                    onChange={(e) => setSettings({ ...settings, registrationNo: e.target.value })}
+                    className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                  />
+                </label>
+                <label className="space-y-1 text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
+                  Location / Address
+                  <input
+                    value={settings.address}
+                    onChange={(e) => setSettings({ ...settings, address: e.target.value })}
+                    className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                  />
+                </label>
+                <label className="space-y-1 text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
+                  Contact Email
+                  <input
+                    value={settings.email}
+                    onChange={(e) => setSettings({ ...settings, email: e.target.value })}
+                    className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                  />
+                </label>
+                <label className="space-y-1 text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
+                  Contact Phone
+                  <input
+                    value={settings.phone}
+                    onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
+                    className="w-full rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 font-normal"
+                  />
+                </label>
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button type="button" disabled={saving} onClick={handleSaveSettings} className="btn-primary">
+                  {saving ? "Saving..." : "Save organization info →"}
+                </button>
               </div>
             </div>
-          </label>
+          )}
 
-          <label className="mt-6 flex items-center gap-3 text-sm text-ink/80">
-            <input
-              type="checkbox"
-              checked={form.autoplay}
-              onChange={(event) => setForm({ ...form, autoplay: event.target.checked })}
-              className="h-4 w-4 rounded border-baobab/30 text-baobab"
-            />
-            Autoplay slideshow on this page
-          </label>
+          {/* TAB 3: Programs & Stats Manager */}
+          {activeTab === "programs" && (
+            <div className="space-y-6">
+              {/* Programs */}
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">Programs Listing Manager</h2>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSettings({
+                        ...settings,
+                        programs: [
+                          ...settings.programs,
+                          { n: `0${settings.programs.length + 1}`, title: "New Program", text: "Program details..." },
+                        ],
+                      })
+                    }
+                    className="btn-primary text-xs"
+                  >
+                    + Add Program
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  {settings.programs.map((p, i) => (
+                    <div key={i} className="rounded border border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-900 space-y-2">
+                      <div className="flex gap-2">
+                        <input
+                          value={p.n}
+                          onChange={(e) => {
+                            const copy = [...settings.programs];
+                            copy[i].n = e.target.value;
+                            setSettings({ ...settings, programs: copy });
+                          }}
+                          className="w-16 rounded border px-2 py-1 text-sm font-bold text-center"
+                        />
+                        <input
+                          value={p.title}
+                          onChange={(e) => {
+                            const copy = [...settings.programs];
+                            copy[i].title = e.target.value;
+                            setSettings({ ...settings, programs: copy });
+                          }}
+                          className="flex-1 rounded border px-3 py-1 text-sm font-bold"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const copy = settings.programs.filter((_, idx) => idx !== i);
+                            setSettings({ ...settings, programs: copy });
+                          }}
+                          className="text-xs text-red-600 hover:underline px-2"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <textarea
+                        value={p.text}
+                        onChange={(e) => {
+                          const copy = [...settings.programs];
+                          copy[i].text = e.target.value;
+                          setSettings({ ...settings, programs: copy });
+                        }}
+                        rows={2}
+                        className="w-full rounded border px-3 py-1.5 text-sm"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <button type="button" disabled={saving} onClick={handleSaveSettings} className="btn-primary">
+                    Save programs →
+                  </button>
+                </div>
+              </div>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              {status && <p className="text-sm text-baobab-dark">{status}</p>}
+              {/* Stats */}
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">Impact Statistics Manager</h2>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSettings({
+                        ...settings,
+                        stats: [...settings.stats, { value: "100+", label: "New metric label" }],
+                      })
+                    }
+                    className="btn-primary text-xs"
+                  >
+                    + Add Metric
+                  </button>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {settings.stats.map((s, i) => (
+                    <div key={i} className="rounded border border-slate-200 dark:border-slate-700 p-3 bg-slate-50 dark:bg-slate-900 flex items-center gap-2">
+                      <input
+                        value={s.value}
+                        onChange={(e) => {
+                          const copy = [...settings.stats];
+                          copy[i].value = e.target.value;
+                          setSettings({ ...settings, stats: copy });
+                        }}
+                        className="w-24 rounded border px-2 py-1 text-sm font-bold text-teal-600"
+                      />
+                      <input
+                        value={s.label}
+                        onChange={(e) => {
+                          const copy = [...settings.stats];
+                          copy[i].label = e.target.value;
+                          setSettings({ ...settings, stats: copy });
+                        }}
+                        className="flex-1 rounded border px-2 py-1 text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const copy = settings.stats.filter((_, idx) => idx !== i);
+                          setSettings({ ...settings, stats: copy });
+                        }}
+                        className="text-xs text-red-600 hover:underline"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <button type="button" disabled={saving} onClick={handleSaveSettings} className="btn-primary">
+                    Save statistics →
+                  </button>
+                </div>
+              </div>
             </div>
-            <button
-              type="button"
-              disabled={saving}
-              onClick={handleSave}
-              className="inline-flex items-center justify-center rounded-full bg-baobab px-6 py-3 text-sm font-semibold text-sand hover:bg-baobab-dark transition-colors disabled:opacity-60"
-            >
-              {saving ? "Saving..." : "Save page content"}
-            </button>
-          </div>
-        </section>
-      </div>
+          )}
+
+          {/* TAB 4: Submissions Viewer */}
+          {activeTab === "messages" && (
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 p-6 shadow-sm">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
+                Visitor Contact Messages ({submissions.length})
+              </h2>
+
+              {submissions.length === 0 ? (
+                <p className="text-sm text-slate-500 py-8 text-center">No contact messages received yet.</p>
+              ) : (
+                <div className="space-y-4">
+                  {submissions.map((s) => (
+                    <div
+                      key={s.id}
+                      className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-5 space-y-2 text-sm"
+                    >
+                      <div className="flex flex-wrap justify-between items-start gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+                        <div>
+                          <span className="font-bold text-slate-900 dark:text-white text-base">{s.name}</span>
+                          <span className="ml-3 text-xs px-2 py-0.5 rounded bg-teal-100 text-teal-800 font-bold uppercase">{s.reason}</span>
+                        </div>
+                        <span className="text-xs text-slate-400">
+                          {new Date(s.receivedAt).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="grid sm:grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-400">
+                        <p><strong>Contact:</strong> {s.contact}</p>
+                        <p><strong>Preferred Method:</strong> {s.preferredMethod} {s.preferredTime ? `(${s.preferredTime})` : ""}</p>
+                      </div>
+                      <div className="pt-2">
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Message:</p>
+                        <p className="text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed">{s.message}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -18,7 +18,7 @@ export default function LoginForm({ onLogin, loading }: { onLogin: (u: string, p
         <input value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Password" type="password" className="rounded-2xl border px-3 py-2" />
       </div>
       <div className="mt-3">
-        <button type="submit" disabled={loading} className="rounded-full bg-baobab px-4 py-2 text-sm font-semibold text-sand">
+        <button type="submit" disabled={loading} className="rounded-md bg-blue-900 hover:bg-blue-950 px-4 py-2 text-sm font-semibold text-white transition-colors disabled:opacity-60">
           {loading ? "Signing in..." : "Sign in"}
         </button>
       </div>

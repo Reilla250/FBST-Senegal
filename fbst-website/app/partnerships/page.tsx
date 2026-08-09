@@ -60,7 +60,7 @@ export default function PartnershipsPage() {
       </Section>
 
       <Section eyebrow="Our partnership promise">
-        <p className="max-w-3xl text-ink/85 leading-relaxed">
+        <p className="max-w-3xl text-slate-600 dark:text-slate-300 leading-relaxed">
           We define roles clearly, protect participant information, share only anonymised
           learning, avoid duplication and keep community safety at the centre of every
           partnership.

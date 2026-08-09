@@ -45,7 +45,7 @@ export default function SafeguardingPage() {
       </Section>
 
       <Section eyebrow="Children and young people">
-        <p className="max-w-3xl text-ink/85 leading-relaxed">
+        <p className="max-w-3xl text-slate-600 dark:text-slate-300 leading-relaxed">
           Children and young people receive age-appropriate information, consent or assent
           processes, safe participation options and referral when there is risk of violence,
           exploitation, severe distress, abuse or self-harm. Peer leaders never manage
@@ -54,7 +54,7 @@ export default function SafeguardingPage() {
       </Section>
 
       <Section tone="deep" eyebrow="How to raise a concern">
-        <p className="max-w-3xl text-ink/85 leading-relaxed">
+        <p className="max-w-3xl text-slate-600 dark:text-slate-300 leading-relaxed">
           A person may raise a safeguarding, privacy or service-quality concern confidentially
           through FBST&rsquo;s approved contact channel. Concerns should be acknowledged,
           handled by authorised staff and referred when specialist action is required.
@@ -62,9 +62,9 @@ export default function SafeguardingPage() {
       </Section>
 
       <Section>
-        <div className="rounded-2xl border border-baobab/30 bg-baobab/10 p-6 sm:p-8 max-w-3xl">
-          <p className="font-display text-lg font-semibold text-baobab mb-2">Emergency note</p>
-          <p className="text-ink/85 leading-relaxed">
+        <div className="rounded-2xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/40 p-6 sm:p-8 max-w-3xl">
+          <p className="font-display text-lg font-semibold text-blue-800 dark:text-blue-400 mb-2">Emergency note</p>
+          <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
             FBST is not an emergency service. If someone is in immediate danger or requires
             urgent medical care, contact the nearest qualified health facility or local
             emergency service.

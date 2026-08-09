@@ -21,53 +21,53 @@ export default function ContactPage() {
         <div className="grid lg:grid-cols-[1fr_1.3fr] gap-12">
           <div className="space-y-8">
             <div>
-              <p className="text-xs font-semibold tracking-widest uppercase text-baobab mb-3">
+              <p className="text-xs font-semibold tracking-widest uppercase text-blue-800 dark:text-blue-400 mb-3">
                 Official contact details
               </p>
               <dl className="space-y-3 text-sm">
                 <div>
-                  <dt className="text-ink/50">Organisation</dt>
+                  <dt className="text-slate-400 dark:text-slate-500">Organisation</dt>
                   <dd className="font-medium">Fondation La Bonne Santé Pour Tous (FBST-Senegal)</dd>
                 </div>
                 <div>
-                  <dt className="text-ink/50">Location</dt>
+                  <dt className="text-slate-400 dark:text-slate-500">Location</dt>
                   <dd className="font-medium">Dakar, Senegal</dd>
                 </div>
                 <div>
-                  <dt className="text-ink/50">Email</dt>
+                  <dt className="text-slate-400 dark:text-slate-500">Email</dt>
                   <dd className="font-medium">
-                    <a href="mailto:info@fdnlabonnesantepourtous.org" className="text-baobab hover:underline">
+                    <a href="mailto:info@fdnlabonnesantepourtous.org" className="text-blue-800 dark:text-blue-400 hover:underline">
                       info@fdnlabonnesantepourtous.org
                     </a>
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-ink/50">Telephone</dt>
+                  <dt className="text-slate-400 dark:text-slate-500">Telephone</dt>
                   <dd className="font-medium">
-                    <a href="tel:+221778577078" className="text-baobab hover:underline">
+                    <a href="tel:+221778577078" className="text-blue-800 dark:text-blue-400 hover:underline">
                       +221 77 857 70 78
                     </a>
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-ink/50">Website</dt>
+                  <dt className="text-slate-400 dark:text-slate-500">Website</dt>
                   <dd className="font-medium">www.fdnlabonnesantepourtous.org</dd>
                 </div>
                 <div>
-                  <dt className="text-ink/50">Registration number</dt>
+                  <dt className="text-slate-400 dark:text-slate-500">Registration number</dt>
                   <dd className="font-medium">978</dd>
                 </div>
               </dl>
             </div>
 
-            <div className="rounded-2xl border border-baobab/15 bg-sand-deep p-5 text-sm text-ink/80 leading-relaxed">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 p-5 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
               FBST provides information, peer support, navigation and referral. We do not
               provide emergency response, diagnosis or prescribing through the website. For
               urgent medical or safety needs, contact the nearest qualified service.
             </div>
           </div>
 
-          <div className="rounded-3xl border border-baobab/15 bg-card/50 p-6 sm:p-8">
+          <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/50 p-6 sm:p-8">
             <ContactForm />
           </div>
         </div>

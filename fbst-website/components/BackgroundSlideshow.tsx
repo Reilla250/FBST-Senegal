@@ -34,7 +34,7 @@ export default function BackgroundSlideshow({ images, autoplay = true }: Props) 
           key={`${src}-${idx}`}
           aria-hidden="true"
           className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${idx === index ? "opacity-100" : "opacity-0"}`}
-          style={{ backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.65)), url('${src}')` }}
+          style={{ backgroundImage: `url('${src}')` }}
         />
       ))}
     </div>

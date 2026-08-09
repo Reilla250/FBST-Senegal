@@ -32,7 +32,7 @@ export default function ContactForm() {
       preferredTime: data.get("preferredTime"),
       message: data.get("message"),
       consent: data.get("consent") === "on",
-      company_website: data.get("company_website"), // honeypot
+      company_website: data.get("company_website"),
     };
 
     try {
@@ -57,18 +57,18 @@ export default function ContactForm() {
 
   if (status === "success") {
     return (
-      <div className="rounded-2xl border border-baobab/30 bg-baobab/10 p-8 text-center">
-        <p className="font-display text-xl font-semibold text-baobab mb-2">
+      <div className="rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/40 p-8 text-center">
+        <p className="font-display text-xl font-bold text-blue-900 dark:text-blue-300 mb-2">
           Thank you for contacting FBST.
         </p>
-        <p className="text-ink/80 leading-relaxed max-w-md mx-auto">
+        <p className="text-slate-600 dark:text-slate-300 leading-relaxed max-w-md mx-auto text-sm">
           Your message has been received. We will use the safe contact method you selected.
           Please do not send additional sensitive information unless an authorised team
           member requests it through a secure process.
         </p>
         <button
           onClick={() => setStatus("idle")}
-          className="mt-6 text-sm font-semibold text-baobab underline underline-offset-4"
+          className="mt-6 text-sm font-semibold text-blue-900 dark:text-blue-400 underline underline-offset-4 hover:text-blue-700 transition-colors"
         >
           Send another message
         </button>
@@ -78,7 +78,7 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-      {/* Honeypot — visually hidden via clipping, not display:none (some bots skip display:none fields) */}
+      {/* Honeypot */}
       <div className="sr-only">
         <label htmlFor="company_website">Leave this field empty</label>
         <input type="text" id="company_website" name="company_website" tabIndex={-1} autoComplete="off" />
@@ -94,13 +94,9 @@ export default function ContactForm() {
 
       <Field label="Reason for contact" htmlFor="reason" error={errors.reason}>
         <select id="reason" name="reason" className={inputClass} required defaultValue="">
-          <option value="" disabled>
-            Choose a reason
-          </option>
+          <option value="" disabled>Choose a reason</option>
           {REASONS.map((r) => (
-            <option key={r.value} value={r.value}>
-              {r.label}
-            </option>
+            <option key={r.value} value={r.value}>{r.label}</option>
           ))}
         </select>
       </Field>
@@ -133,16 +129,16 @@ export default function ContactForm() {
         />
       </Field>
 
-      <label className="flex items-start gap-3 text-sm text-ink/80">
-        <input type="checkbox" id="consent" name="consent" className="mt-1 h-4 w-4 accent-baobab" required />
+      <label className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300">
+        <input type="checkbox" id="consent" name="consent" className="mt-1 h-4 w-4 accent-blue-900" required />
         <span>
           I consent to FBST contacting me using the method above.
-          {errors.consent && <span className="block text-baobab-dark font-medium mt-1">{errors.consent}</span>}
+          {errors.consent && <span className="block text-red-600 dark:text-red-400 font-medium mt-1">{errors.consent}</span>}
         </span>
       </label>
 
       {status === "error" && Object.keys(errors).length === 0 && (
-        <p className="text-sm text-baobab-dark font-medium">
+        <p className="text-sm text-red-600 dark:text-red-400 font-medium">
           Something went wrong sending your message. Please try again, or email us directly.
         </p>
       )}
@@ -150,16 +146,18 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={status === "submitting"}
-        className="inline-flex items-center rounded-full bg-baobab px-7 py-3 text-sm font-semibold text-sand hover:bg-baobab-dark transition-colors disabled:opacity-60"
+        className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        {status === "submitting" ? "Sending…" : "Send message"}
+        {status === "submitting" ? "Sending…" : "Send message →"}
       </button>
     </form>
   );
 }
 
 const inputClass =
-  "w-full rounded-xl border border-baobab/20 bg-white/70 px-4 py-3 text-sm text-ink placeholder:text-ink/40 focus:border-baobab outline-none transition-colors";
+  "w-full rounded border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all"
+  + " dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
+  + " [&]:focus:ring-[#08B4D0]";
 
 function Field({
   label,
@@ -174,11 +172,11 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="block text-sm font-medium text-ink/85 mb-1.5">
+      <label htmlFor={htmlFor} className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
         {label}
       </label>
       {children}
-      {error && <p className="mt-1.5 text-sm text-baobab-dark font-medium">{error}</p>}
+      {error && <p className="mt-1.5 text-sm text-red-600 dark:text-red-400 font-medium">{error}</p>}
     </div>
   );
 }

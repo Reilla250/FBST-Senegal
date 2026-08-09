@@ -20,7 +20,7 @@ export default function DWiFIPage() {
       </PageHero>
 
       <Section eyebrow="About the project" title="Built on a proven foundation">
-        <p className="max-w-3xl text-ink/85 leading-relaxed">
+        <p className="max-w-3xl text-slate-600 dark:text-slate-300 leading-relaxed">
           D-WiFI is built on FBST&rsquo;s successful 2024-2025 SafeLink work. The project
           recognises that services can exist while people still stay away because they fear
           being recognised, judged, exposed, blackmailed or treated badly.
@@ -65,7 +65,7 @@ export default function DWiFIPage() {
       </Section>
 
       <Section eyebrow="What made it work" title="Trust came before referral">
-        <p className="max-w-3xl text-ink/85 leading-relaxed">
+        <p className="max-w-3xl text-slate-600 dark:text-slate-300 leading-relaxed">
           People were more willing to test, return to treatment or ask for support when they
           were approached by peers who understood their fears and protected their privacy.
           The SafeLink approach turns confidentiality, respect and follow-up into practical
@@ -74,7 +74,7 @@ export default function DWiFIPage() {
       </Section>
 
       <Section tone="deep" eyebrow="Looking ahead">
-        <p className="max-w-3xl text-ink/85 leading-relaxed">
+        <p className="max-w-3xl text-slate-600 dark:text-slate-300 leading-relaxed">
           FBST is strengthening D-WiFI to reach more people, train additional peer navigators,
           improve trusted referral pathways and help service providers strengthen
           confidentiality, respectful communication and accountability.

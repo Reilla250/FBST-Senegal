@@ -1,124 +1,233 @@
 @import "tailwindcss";
 
-/* Fraunces: warm editorial display serif with soft-contrast optical detail */
+/* ── Fonts ── */
 @import "@fontsource/fraunces/400.css";
-@import "@fontsource/fraunces/500.css";
 @import "@fontsource/fraunces/600.css";
-@import "@fontsource/fraunces/600-italic.css";
 @import "@fontsource/fraunces/700.css";
-/* Work Sans: warm, rounded-humanist body face, easy to read at length */
 @import "@fontsource/work-sans/400.css";
 @import "@fontsource/work-sans/500.css";
 @import "@fontsource/work-sans/600.css";
-/* IBM Plex Mono: utility face for data, stats, figures */
 @import "@fontsource/ibm-plex-mono/500.css";
 
+/* ══════════════════════════════════════════════════
+   PORTO-STYLE DESIGN SYSTEM
+   ✦ Cyan accent (#08B4D0) + Charcoal dark (#1E2430)
+   ✦ Clean white body, crisp typography
+══════════════════════════════════════════════════ */
 :root {
-  /* ---- Color tokens ---- */
-  --sand:        #F6F0E3; /* warm paper background */
-  --sand-deep:   #EDE3CD; /* recessed panels, cards */
-  --ink:         #22302B; /* primary text, deep warm charcoal-green */
-  --baobab:      #8B4A2E; /* bark brown — structural, nav, headings */
-  --baobab-dark: #6C3A22;
-  --marigold:    #8B4A2E; /* warm accent, same family as baobab */
-  --marigold-dark:#6C3A22;
-  --teal:        #8B4A2E; /* reduced palette: unified warm accent */
-  --teal-dark:   #6C3A22;
-  --rose:        #8B4A2E; /* same warm family for status and emphasis */
+  /* Single accent colour – bright cyan, like Porto */
+  --brand:        #08B4D0;
+  --brand-dark:   #0891B2;
+  --brand-light:  #E0F7FA;
 
+  /* Surfaces */
+  --bg:           #F4F5F7;   /* Very light gray body */
+  --bg-card:      #FFFFFF;
+  --bg-surface:   #F0F2F5;
+  --bg-header:    #1E2430;   /* Dark charcoal header */
+  --bg-footer:    #1A1F2B;   /* Slightly darker footer */
+
+  /* Text */
+  --text-primary: #1E2430;   /* Charcoal headings */
+  --text-body:    #555C68;   /* Medium gray body */
+  --text-muted:   #8C939E;   /* Light gray muted */
+  --text-on-dark: #FFFFFF;
+
+  /* Borders */
+  --border:       #E0E3E8;
+  --border-strong:#C8CDD5;
+
+  /* Fonts */
   --font-display: "Fraunces", ui-serif, Georgia, serif;
-  --font-body: "Work Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-data: "IBM Plex Mono", ui-monospace, monospace;
+  --font-body:    "Work Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-data:    "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Legacy aliases for old Tailwind classes still in templates */
+  --sand:           var(--bg);
+  --sand-deep:      var(--bg-surface);
+  --ink:            var(--text-body);
+  --baobab:         var(--brand);
+  --baobab-dark:    var(--brand-dark);
+  --marigold:       var(--brand);
+  --marigold-dark:  var(--brand-dark);
+  --teal:           var(--brand);
+  --teal-dark:      var(--brand-dark);
+  --rose:           var(--brand);
 }
 
+/* ══════════════════════════════════════════════════
+   DARK MODE
+══════════════════════════════════════════════════ */
+.theme-dark {
+  --bg:           #131720;
+  --bg-card:      #1E2430;
+  --bg-surface:   #252B38;
+  --bg-header:    #0F1319;
+  --bg-footer:    #0F1319;
+  --text-primary: #F0F2F5;
+  --text-body:    #A8B2BF;
+  --text-muted:   #6B7785;
+
+  --sand:           var(--bg);
+  --sand-deep:      var(--bg-surface);
+  --ink:            var(--text-body);
+  --baobab:         var(--brand);
+  --baobab-dark:    var(--brand-dark);
+  --marigold:       var(--brand);
+  --teal:           var(--brand);
+  --teal-dark:      var(--brand-dark);
+
+  --color-card:      var(--bg-card);
+  --color-bg:        var(--bg);
+  --color-foreground:var(--text-body);
+}
+
+/* ══════════════════════════════════════════════════
+   TAILWIND THEME BRIDGE
+══════════════════════════════════════════════════ */
 @theme inline {
-  --color-sand: var(--sand);
-  --color-sand-deep: var(--sand-deep);
-  --color-ink: var(--ink);
-  --color-baobab: var(--baobab);
-  --color-baobab-dark: var(--baobab-dark);
-  --color-marigold: var(--marigold);
-  --color-marigold-dark: var(--marigold-dark);
-  --color-teal: var(--teal);
-  --color-teal-dark: var(--teal-dark);
-  --color-rose: var(--rose);
-  --color-card: var(--color-card);
-  --font-display: var(--font-display);
-  --font-body: var(--font-body);
-  --font-data: var(--font-data);
+  --color-sand:         var(--bg);
+  --color-sand-deep:    var(--bg-surface);
+  --color-ink:          var(--text-body);
+  --color-baobab:       var(--brand);
+  --color-baobab-dark:  var(--brand-dark);
+  --color-marigold:     var(--brand);
+  --color-marigold-dark:var(--brand-dark);
+  --color-teal:         var(--brand);
+  --color-teal-dark:    var(--brand-dark);
+  --color-rose:         var(--brand);
+  --color-card:         var(--bg-card);
+  --font-display:       var(--font-display);
+  --font-body:          var(--font-body);
+  --font-data:          var(--font-data);
 }
 
-* {
-  scroll-behavior: smooth;
-}
+/* ══════════════════════════════════════════════════
+   BASE
+══════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+* { scroll-behavior: smooth; }
 
-@media (prefers-reduced-motion: reduce) {
-  * {
-    scroll-behavior: auto;
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
-}
-
-/* Theme-aware background/foreground using CSS variables. */
 html, body {
   min-height: 100%;
-  background: var(--color-bg, #0f172a);
-  color: var(--color-foreground, #f8fafc);
+  background: var(--bg);
+  color: var(--text-body);
   font-family: var(--font-body);
 }
 
-/* Light theme tokens */
 .theme-light {
-  --color-bg: var(--sand);
-  --color-foreground: var(--ink);
-  --color-surface: var(--sand-deep);
-  --color-card: #ffffff;
-  --color-border: rgba(12, 23, 19, 0.06);
+  --color-bg:        var(--bg);
+  --color-foreground:var(--text-body);
+  --color-card:      var(--bg-card);
+  background: var(--bg);
+  color: var(--text-body);
 }
-
-/* Dark theme tokens */
 .theme-dark {
-  --color-bg: #0f172a;
-  --color-foreground: #f8fafc;
-  --color-surface: #1e293b;
-  --color-card: #1e293b;
-  --color-border: rgba(255,255,255,0.1);
-  --sand: #0f172a;
-  --sand-deep: #1e293b;
-  --ink: #f8fafc;
-  --baobab: #e8a88a;
-  --baobab-dark: #fed7aa;
-  --marigold: #facc15;
-  --marigold-dark:#fef08a;
-  --teal: #2dd4bf;
-  --teal-dark: #5eead4;
-  --rose: #fb7185;
-}
-
-::selection {
-  background: rgba(139, 74, 46, 0.25);
-  color: #0f172a;
-}
-
-:focus-visible {
-  outline: 3px solid var(--baobab-dark);
-  outline-offset: 3px;
-  border-radius: 2px;
+  background: var(--bg);
+  color: var(--text-body);
 }
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  color: var(--baobab-dark);
+  color: var(--text-primary);
   letter-spacing: -0.01em;
 }
 
-/* Signature horizon-arc divider: a rising-sun line used at section
-   transitions, echoing "new day / new start" without literal sun clipart. */
+::selection {
+  background: #B2EBF2;
+  color: #006064;
+}
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* ══════════════════════════════════════════════════
+   FORMS
+══════════════════════════════════════════════════ */
+input, textarea, select {
+  color: var(--text-body);
+  background-color: var(--bg-card);
+}
+input::placeholder, textarea::placeholder { color: var(--text-muted); }
+select option { background-color: var(--bg-card); color: var(--text-body); }
+
+/* ══════════════════════════════════════════════════
+   SECTION BACKGROUNDS
+══════════════════════════════════════════════════ */
+.section-light   { background: var(--bg-card); }
+.section-surface { background: var(--bg-surface); }
+
+/* ══════════════════════════════════════════════════
+   CARD HOVER
+══════════════════════════════════════════════════ */
+.card-hover {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(8, 180, 208, 0.10);
+  border-color: var(--brand) !important;
+}
+
+/* ══════════════════════════════════════════════════
+   BUTTONS  –  Solid cyan, white text (Porto style)
+══════════════════════════════════════════════════ */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  background-color: #08B4D0;
+  border: 2px solid #08B4D0;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  background-color: #0891B2;
+  border-color: #0891B2;
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #08B4D0;
+  background-color: transparent;
+  border: 2px solid #08B4D0;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn-outline:hover {
+  background-color: #08B4D0;
+  color: #FFFFFF;
+}
+
+/* ══════════════════════════════════════════════════
+   DIVIDER
+══════════════════════════════════════════════════ */
 .horizon-divider {
   position: relative;
-  height: 48px;
+  height: 36px;
   width: 100%;
   overflow: hidden;
 }

@@ -21,21 +21,31 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const cookie = req.cookies.get("admin_auth");
-  if (!cookie) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  if (!cookie || (cookie.value !== "1" && cookie.value !== "true")) {
+    return NextResponse.json({ ok: false, error: "Unauthorized. Please log in as admin again." }, { status: 401 });
+  }
 
-  const form = await req.formData();
-  const file = form.get("file") as unknown as File | null;
-  if (!file) return NextResponse.json({ ok: false, error: "No file provided" }, { status: 400 });
+  try {
+    const form = await req.formData();
+    const file = form.get("file") as unknown as File | null;
+    if (!file || typeof file === "string") {
+      return NextResponse.json({ ok: false, error: "No image file selected" }, { status: 400 });
+    }
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await fs.promises.mkdir(uploadsDir, { recursive: true });
+    const buffer = Buffer.from(await file.arrayBuffer());
+    await fs.promises.mkdir(uploadsDir, { recursive: true });
 
-  const safeName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-]/g, "_")}`;
-  const dest = path.join(uploadsDir, safeName);
-  await fs.promises.writeFile(dest, buffer);
+    const cleanFilename = file.name ? file.name.replace(/[^a-zA-Z0-9.\-]/g, "_") : "image.jpg";
+    const safeName = `${Date.now()}-${cleanFilename}`;
+    const dest = path.join(uploadsDir, safeName);
+    await fs.promises.writeFile(dest, buffer);
 
-  const url = `/uploads/${safeName}`;
-  return NextResponse.json({ ok: true, url });
+    const url = `/uploads/${safeName}`;
+    return NextResponse.json({ ok: true, url, message: "File uploaded successfully" });
+  } catch (err: any) {
+    console.error("Upload error:", err);
+    return NextResponse.json({ ok: false, error: err?.message || "File upload failed" }, { status: 500 });
+  }
 }
 
 export async function DELETE(req: NextRequest) {

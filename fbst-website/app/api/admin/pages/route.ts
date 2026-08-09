@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getAllPageData, savePageData, deletePageData } from "@/lib/cms";
 
 export async function GET() {
@@ -33,6 +34,12 @@ export async function POST(req: NextRequest) {
     autoplay: Boolean(body.autoplay),
   });
 
+  try {
+    revalidatePath("/", "layout");
+  } catch (e) {
+    console.error("Revalidation error:", e);
+  }
+
   return NextResponse.json({ ok: true, page });
 }
 
@@ -44,5 +51,12 @@ export async function DELETE(req: NextRequest) {
   if (!slug) return NextResponse.json({ ok: false, error: "Missing slug" }, { status: 400 });
 
   await deletePageData(slug);
+
+  try {
+    revalidatePath("/", "layout");
+  } catch (e) {
+    console.error("Revalidation error:", e);
+  }
+
   return NextResponse.json({ ok: true });
 }

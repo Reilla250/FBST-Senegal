@@ -21,7 +21,7 @@ export default function NouveauDepartPage() {
       </PageHero>
 
       <Section eyebrow="About the project" title="Language that never labels">
-        <p className="max-w-3xl text-ink/85 leading-relaxed">
+        <p className="max-w-3xl text-slate-600 dark:text-slate-300 leading-relaxed">
           The project uses simple, non-medicalising language centred on wellbeing, confidence,
           safety, listening and the future. It does not label young people. It helps them find
           support, rebuild trust and take a realistic step toward education and wellbeing.
@@ -69,7 +69,7 @@ export default function NouveauDepartPage() {
       </Section>
 
       <Section eyebrow="Why it connected" title="Strengths, choices and a future">
-        <p className="max-w-3xl text-ink/85 leading-relaxed">
+        <p className="max-w-3xl text-slate-600 dark:text-slate-300 leading-relaxed">
           Young people were not reduced to a mental-health label, pregnancy or school failure.
           They were treated as people with strengths, choices and a future. The language of
           wellbeing, trust and hope made it easier to ask for help without shame.
@@ -77,7 +77,7 @@ export default function NouveauDepartPage() {
       </Section>
 
       <Section tone="deep" eyebrow="Looking ahead">
-        <p className="max-w-3xl text-ink/85 leading-relaxed">
+        <p className="max-w-3xl text-slate-600 dark:text-slate-300 leading-relaxed">
           FBST is working to expand and strengthen NOUVEAU DÉPART while protecting its human,
           confidential and youth-led character. Future growth will focus on quality,
           safeguarding, stronger measurement, school and community adoption, and sustainable

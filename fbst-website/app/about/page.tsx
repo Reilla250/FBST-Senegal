@@ -19,7 +19,7 @@ export default function AboutPage() {
       </PageHero>
 
       <Section eyebrow="Who we are" title="From lived experience to practical action">
-        <div className="max-w-3xl space-y-4 text-ink/85 leading-relaxed">
+        <div className="max-w-3xl space-y-4 text-slate-600 dark:text-slate-300 leading-relaxed">
           <p>
             FBST was founded in Dakar in 2000 by community members who had seen how stigma,
             broken confidentiality and unsafe services could push people away from care. They
@@ -61,9 +61,9 @@ export default function AboutPage() {
             ["Accountability", "We listen to feedback and use evidence to improve."],
             ["Hope", "Every interaction should leave a person with a clearer and safer next step."],
           ].map(([title, text]) => (
-            <div key={title}>
-              <p className="font-display text-lg font-semibold text-baobab-dark mb-1">{title}</p>
-              <p className="text-ink/80 leading-relaxed">{text}</p>
+            <div key={title} className="border-l-2 border-blue-900 dark:border-blue-500 pl-4">
+              <p className="font-display text-lg font-bold text-slate-900 dark:text-white mb-1">{title}</p>
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">{text}</p>
             </div>
           ))}
         </div>
@@ -83,7 +83,7 @@ export default function AboutPage() {
       </Section>
 
       <Section eyebrow="Official details" title="Organisation details">
-        <dl className="grid sm:grid-cols-2 gap-x-10 gap-y-4 max-w-2xl text-sm">
+        <dl className="grid sm:grid-cols-2 gap-x-10 gap-y-5 max-w-2xl">
           {[
             ["Legal name", "Fondation La Bonne Santé Pour Tous"],
             ["Public name", "FBST-Senegal"],
@@ -94,8 +94,8 @@ export default function AboutPage() {
             ["Telephone", "+221 77 857 70 78"],
           ].map(([label, value]) => (
             <div key={label}>
-              <dt className="text-ink/50 uppercase tracking-wide text-xs mb-1">{label}</dt>
-              <dd className="text-ink font-medium">{value}</dd>
+              <dt className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">{label}</dt>
+              <dd className="text-sm font-semibold text-slate-900 dark:text-slate-100">{value}</dd>
             </div>
           ))}
         </dl>

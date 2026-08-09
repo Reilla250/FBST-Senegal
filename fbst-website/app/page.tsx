@@ -5,24 +5,21 @@ import StepList from "@/components/StepList";
 import PageHero from "@/components/PageHero";
 import { CTA } from "@/components/ui";
 
-const partners = [
-  "Schools",
-  "Health clinics",
-  "Youth groups",
-  "Community networks",
-  "Peer leaders",
-];
+const partners = ["Schools", "Health clinics", "Youth groups", "Community networks", "Peer leaders"];
 
 const features = [
   {
+    icon: "🤝",
     title: "Confidential care pathways",
     description: "Peer-led guidance and protected referral that helps people access support without fear.",
   },
   {
+    icon: "💚",
     title: "Youth wellbeing support",
     description: "Integrated school return, mental health and protection services designed for young people.",
   },
   {
+    icon: "🌍",
     title: "Stigma reduction initiatives",
     description: "Evidence-informed programmes that strengthen health access and community trust.",
   },
@@ -30,7 +27,8 @@ const features = [
 
 export default function Home() {
   return (
-    <div className="space-y-24">
+    <div>
+      {/* Hero */}
       <PageHero
         slug="home"
         eyebrow="Community wellbeing"
@@ -40,18 +38,25 @@ export default function Home() {
         ctaHref="/contact"
       />
 
-      <section className="bg-sand">
-        <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
-          <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+      {/* Partners strip */}
+      <section style={{ background: "#F0F2F5", borderTop: "1px solid #E0E3E8", borderBottom: "1px solid #E0E3E8" }}>
+        <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-center">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-baobab">Trusted partners</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-baobab-dark sm:text-4xl">
+              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#08B4D0" }}>
+                Trusted partners
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-bold leading-tight" style={{ color: "#1E2430" }}>
                 Schools, clinics and community networks partner with FBST for safer, more effective support.
               </h2>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
               {partners.map((item) => (
-                <div key={item} className="rounded-3xl border border-baobab/10 bg-card px-6 py-6 text-center text-sm font-semibold text-baobab-dark shadow-sm">
+                <div
+                  key={item}
+                  className="card-hover rounded border px-5 py-4 text-center text-sm font-semibold"
+                  style={{ background: "#FFFFFF", borderColor: "#E0E3E8", color: "#1E2430" }}
+                >
                   {item}
                 </div>
               ))}
@@ -60,17 +65,26 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Features */}
       <Section eyebrow="What we offer" title="Tailored services for clients and partners">
         <div className="grid gap-6 md:grid-cols-3">
           {features.map((feature) => (
-            <div key={feature.title} className="rounded-3xl border border-baobab/10 bg-card p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-              <h3 className="font-display text-xl font-semibold text-baobab-dark">{feature.title}</h3>
-              <p className="mt-4 text-sm leading-7 text-ink/80">{feature.description}</p>
+            <div
+              key={feature.title}
+              className="card-hover rounded border p-7"
+              style={{ background: "#FFFFFF", borderColor: "#E0E3E8", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}
+            >
+              {/* Cyan accent bar */}
+              <div className="w-8 h-0.5 mb-4" style={{ background: "#08B4D0" }} />
+              <div className="mb-4 text-3xl">{feature.icon}</div>
+              <h3 className="font-display text-xl font-bold mb-2" style={{ color: "#1E2430" }}>{feature.title}</h3>
+              <p className="text-sm leading-relaxed" style={{ color: "#555C68" }}>{feature.description}</p>
             </div>
           ))}
         </div>
       </Section>
 
+      {/* Stats */}
       <Section tone="deep" eyebrow="Impact" title="Measured outcomes with real community value">
         <StatGrid
           stats={[
@@ -82,6 +96,7 @@ export default function Home() {
         />
       </Section>
 
+      {/* How it works */}
       <Section eyebrow="How it works" title="A respectful process for every person">
         <StepList
           steps={[
@@ -93,6 +108,7 @@ export default function Home() {
         />
       </Section>
 
+      {/* CTA */}
       <Section>
         <CTA
           heading="Ready to strengthen your support pathways?"

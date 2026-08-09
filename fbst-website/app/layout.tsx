@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AdminBar from "@/components/AdminBar";
 
 export const metadata: Metadata = {
   title: {
@@ -14,11 +15,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{const key='theme';const stored=localStorage.getItem(key);const prefers=window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;const theme = stored || (prefers ? 'dark' : 'light'); document.documentElement.classList.add(theme==='dark' ? 'theme-dark' : 'theme-light');}catch(e){} })()` }} />
       </head>
       <body className="antialiased flex min-h-screen flex-col">
+        <AdminBar />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

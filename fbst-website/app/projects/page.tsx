@@ -26,7 +26,7 @@ export default function ProjectsIndexPage() {
             people aged 10 to 24 who face distress, stigma, school dropout, difficult
             reintegration, early pregnancy or social exclusion.
             <div className="mt-4">
-              <Link href="/projects/nouveau-depart" className="text-baobab font-semibold text-sm hover:underline">
+              <Link href="/projects/nouveau-depart" className="text-blue-800 dark:text-blue-400 font-semibold text-sm hover:underline">
                 Explore NOUVEAU DÉPART →
               </Link>
             </div>
@@ -36,7 +36,7 @@ export default function ProjectsIndexPage() {
             successful 2024-2025 SafeLink work with men who have sex with men (MSM/HSH), people
             living with HIV and other vulnerable communities.
             <div className="mt-4">
-              <Link href="/projects/dakar-without-fear" className="text-baobab font-semibold text-sm hover:underline">
+              <Link href="/projects/dakar-without-fear" className="text-blue-800 dark:text-blue-400 font-semibold text-sm hover:underline">
                 Explore D-WiFI &rarr;
               </Link>
             </div>

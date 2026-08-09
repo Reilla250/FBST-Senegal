@@ -34,6 +34,71 @@ export type ContactSubmission = {
   consent: boolean;
 };
 
+export type NavItem = { label: string; href: string };
+export type ProgramItem = { n: string; title: string; text: string };
+export type StatItem = { value: string; label: string };
+
+export type SiteSettings = {
+  siteName: string;
+  legalName: string;
+  registrationNo: string;
+  email: string;
+  phone: string;
+  address: string;
+  primaryNav: NavItem[];
+  programs: ProgramItem[];
+  stats: StatItem[];
+};
+
+const SETTINGS_PATH = path.join(process.cwd(), "data", "site-settings.json");
+
+const defaultSettings: SiteSettings = {
+  siteName: "FBST-Senegal",
+  legalName: "Fondation La Bonne Santé Pour Tous",
+  registrationNo: "978",
+  email: "info@fdnlabonnesantepourtous.org",
+  phone: "+221 77 857 70 78",
+  address: "Dakar, Senegal",
+  primaryNav: [
+    { label: "Home", href: "/" },
+    { label: "About", href: "/about" },
+    { label: "Programs", href: "/programs" },
+    { label: "Impact", href: "/impact" },
+    { label: "Contact", href: "/contact" },
+  ],
+  programs: [
+    { n: "01", title: "Youth mental health and school return", text: "We support young people aged 10 to 24 through confidential identification, wellbeing circles, individual support plans, family-school mediation and safe referral." },
+    { n: "02", title: "HIV prevention and treatment continuity", text: "We provide clear HIV prevention and treatment information, confidential testing referrals, treatment re-linkage, adherence support and follow-up." },
+    { n: "03", title: "Peer navigation and safe linkage to care", text: "Trusted and supervised peers help people understand their options, agree on a safe referral plan, reach an appropriate service and receive respectful follow-up." },
+    { n: "04", title: "Sexual and reproductive health support", text: "We provide non-judgemental information and referral related to sexual and reproductive health, PrEP, STI services, safer sex, counselling and youth-friendly care." },
+    { n: "05", title: "Rights, protection and anti-stigma action", text: "We help people understand confidentiality, informed consent, respectful care and safe ways to seek help after stigma, discrimination, violence, blackmail or forced disclosure." },
+    { n: "06", title: "Health-system partnership and accountability", text: "We work with schools, health facilities, public services, community groups and civil-society partners to improve referrals, confidentiality and respectful communication." },
+  ],
+  stats: [
+    { value: "210", label: "young people joined the NOUVEAU DÉPART pilot" },
+    { value: "181", label: "completed the NOUVEAU DÉPART pathway" },
+    { value: "69%", label: "reported improved psychosocial wellbeing" },
+    { value: "1,847", label: "community members reached with stigma-reduction information" },
+  ],
+};
+
+export async function getSiteSettings(): Promise<SiteSettings> {
+  try {
+    const raw = await fs.readFile(SETTINGS_PATH, "utf-8");
+    return { ...defaultSettings, ...JSON.parse(raw) };
+  } catch {
+    return defaultSettings;
+  }
+}
+
+export async function saveSiteSettings(settings: Partial<SiteSettings>): Promise<SiteSettings> {
+  const current = await getSiteSettings();
+  const updated = { ...current, ...settings };
+  await fs.mkdir(path.dirname(SETTINGS_PATH), { recursive: true });
+  await fs.writeFile(SETTINGS_PATH, JSON.stringify(updated, null, 2), "utf-8");
+  return updated;
+}
+
 async function readFallbackContent(): Promise<PageContent[]> {
   try {
     const raw = await fs.readFile(CONTENT_PATH, "utf-8");
@@ -205,3 +270,29 @@ export async function saveContactSubmission(submission: Omit<ContactSubmission, 
   current.push(item);
   await writeFallbackSubmissions(current);
 }
+
+export async function getAllSubmissions(): Promise<ContactSubmission[]> {
+  if (hasDatabase) {
+    try {
+      const rows = await query<any[]>("SELECT * FROM contact_submissions ORDER BY created_at DESC");
+      if (Array.isArray(rows)) {
+        return rows.map((r) => ({
+          id: String(r.id),
+          receivedAt: String(r.created_at ?? r.receivedAt ?? new Date().toISOString()),
+          name: String(r.name),
+          contact: String(r.contact),
+          reason: String(r.reason),
+          preferredMethod: String(r.preferred_method ?? r.preferredMethod),
+          preferredTime: r.preferred_time ? String(r.preferred_time) : undefined,
+          message: String(r.message),
+          consent: Boolean(r.consent),
+        }));
+      }
+    } catch {
+      // Fallback if table doesn't exist
+    }
+  }
+
+  return readFallbackSubmissions();
+}
+
