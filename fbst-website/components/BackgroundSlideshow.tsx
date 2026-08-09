@@ -28,7 +28,7 @@ export default function BackgroundSlideshow({ images, autoplay = true }: Props) 
   }
 
   return (
-    <div className="absolute inset-0 -z-10 overflow-hidden">
+    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
       {visibleImages.map((src, idx) => (
         <div
           key={`${src}-${idx}`}

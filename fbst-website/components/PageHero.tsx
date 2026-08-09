@@ -46,7 +46,7 @@ export default async function PageHero({
         <>
           <BackgroundSlideshow images={heroImages} autoplay={autoplay && Boolean(heroImages.length)} />
           {/* Subtle overlay so background images are clearly visible while text remains high contrast */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(15,23,42,0.50) 0%, rgba(15,23,42,0.75) 100%)" }} />
+          <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(15,23,42,0.35) 0%, rgba(15,23,42,0.65) 100%)" }} />
         </>
       )}
 
@@ -62,7 +62,7 @@ export default async function PageHero({
       )}
 
       {/* Content */}
-      <div className="relative mx-auto max-w-7xl px-5 sm:px-8 py-20 sm:py-28 flex flex-col items-start justify-center" style={{ minHeight: "480px" }}>
+      <div className="relative z-20 mx-auto max-w-7xl px-5 sm:px-8 py-20 sm:py-28 flex flex-col items-start justify-center" style={{ minHeight: "480px" }}>
 
         {eyebrow && (
           <p

@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
 import { query, hasDatabase } from "@/lib/db";
+import { unstable_noStore as noStore } from "next/cache";
 
 const CONTENT_PATH = path.join(process.cwd(), "data", "site-content.json");
 const SUBMISSIONS_PATH = path.join(process.cwd(), "data", "submissions.json");
@@ -83,6 +84,7 @@ const defaultSettings: SiteSettings = {
 };
 
 export async function getSiteSettings(): Promise<SiteSettings> {
+  noStore();
   try {
     const raw = await fs.readFile(SETTINGS_PATH, "utf-8");
     return { ...defaultSettings, ...JSON.parse(raw) };
@@ -128,6 +130,7 @@ async function writeFallbackSubmissions(items: ContactSubmission[]) {
 }
 
 export async function getAllPageData(): Promise<PageContent[]> {
+  noStore();
   if (hasDatabase) {
     const rows = await query<any[]>("SELECT * FROM pages ORDER BY slug");
     if (Array.isArray(rows) && rows.length > 0) {

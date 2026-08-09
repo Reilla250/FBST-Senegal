@@ -5,6 +5,8 @@ import StepList from "@/components/StepList";
 import PageHero from "@/components/PageHero";
 import { CTA } from "@/components/ui";
 
+export const dynamic = "force-dynamic";
+
 const partners = ["Schools", "Health clinics", "Youth groups", "Community networks", "Peer leaders"];
 
 const features = [
