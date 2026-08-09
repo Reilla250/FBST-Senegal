@@ -206,26 +206,52 @@ async function writeFallbackSubmissions(items: ContactSubmission[]) {
 
 export async function getAllPageData(): Promise<PageContent[]> {
   noStore();
+  const fallbackPages = await readFallbackContent();
+  const fallbackMap = new Map(fallbackPages.map((p) => [p.slug, p.images]));
+
   if (hasDatabase) {
-    const rows = await query<any[]>("SELECT * FROM pages ORDER BY slug");
-    if (Array.isArray(rows) && rows.length > 0) {
-      return rows.map((row) => ({
-        slug: String(row.slug),
-        label: String(row.label),
-        title: String(row.title),
-        description: String(row.description ?? ""),
-        heroHeading: String(row.hero_heading ?? ""),
-        heroSubheading: row.hero_subheading ? String(row.hero_subheading) : undefined,
-        heroText: row.hero_text ? String(row.hero_text) : undefined,
-        heroCtaLabel: row.hero_cta_label ? String(row.hero_cta_label) : undefined,
-        heroCtaHref: row.hero_cta_href ? String(row.hero_cta_href) : undefined,
-        images: Array.isArray(row.images) ? (row.images as string[]) : JSON.parse(String(row.images ?? "[]")),
-        autoplay: Boolean(row.autoplay),
-      }));
+    try {
+      const rows = await query<any[]>("SELECT * FROM pages ORDER BY slug");
+      if (Array.isArray(rows) && rows.length > 0) {
+        return rows.map((row) => {
+          const slug = String(row.slug);
+          let rawImages: string[] = [];
+          try {
+            rawImages = Array.isArray(row.images)
+              ? (row.images as string[])
+              : JSON.parse(String(row.images ?? "[]"));
+          } catch {}
+
+          // Filter out data URLs or empty strings
+          const validImages = rawImages.filter(
+            (img) => img && typeof img === "string" && !img.startsWith("data:")
+          );
+
+          // Use database images if available; otherwise use default fallback images
+          const finalImages =
+            validImages.length > 0 ? validImages : fallbackMap.get(slug) || [];
+
+          return {
+            slug,
+            label: String(row.label),
+            title: String(row.title),
+            description: String(row.description ?? ""),
+            heroHeading: String(row.hero_heading ?? ""),
+            heroSubheading: row.hero_subheading ? String(row.hero_subheading) : undefined,
+            heroText: row.hero_text ? String(row.hero_text) : undefined,
+            heroCtaLabel: row.hero_cta_label ? String(row.hero_cta_label) : undefined,
+            heroCtaHref: row.hero_cta_href ? String(row.hero_cta_href) : undefined,
+            images: finalImages,
+            autoplay: Boolean(row.autoplay),
+          };
+        });
+      }
+    } catch (err) {
+      console.warn("Database query for pages failed; using JSON fallbacks:", err);
     }
   }
 
-  return readFallbackContent();
+  return fallbackPages;
 }
 
 export async function getPageData(slug: string): Promise<PageContent> {
