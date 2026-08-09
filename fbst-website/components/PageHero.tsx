@@ -37,7 +37,7 @@ export default async function PageHero({
     <section
       className="relative overflow-hidden"
       style={{
-        minHeight: "480px",
+        minHeight: "clamp(340px, 55vw, 520px)",
         background: hasImages ? undefined : "#1E2430",
       }}
     >

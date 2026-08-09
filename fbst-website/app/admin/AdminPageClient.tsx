@@ -572,10 +572,14 @@ export default function AdminPageClient() {
                             <img src={imgUrl} alt="Hero background preview" className="w-full h-full object-cover" />
                             <button
                               type="button"
-                              onClick={() => {
+                              onClick={async () => {
                                 const newImgs = form.images.filter((i) => i !== imgUrl);
                                 setForm({ ...form, images: newImgs });
-                                handleRemoveImage(imgUrl);
+                                // If it's a local upload, also delete the file
+                                if (imgUrl.startsWith("/uploads/")) {
+                                  const filename = imgUrl.replace("/uploads/", "");
+                                  await fetch(`/api/admin/upload?file=${encodeURIComponent(filename)}`, { method: "DELETE" }).catch(() => {});
+                                }
                               }}
                               className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow opacity-90 group-hover:opacity-100"
                               title="Remove image"

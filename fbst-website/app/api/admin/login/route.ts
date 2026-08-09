@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { hasDatabase, query } from "../../../../lib/db";
 import bcrypt from "bcryptjs";
 
+const isProduction = process.env.NODE_ENV === "production";
+const COOKIE_FLAGS = `Path=/; HttpOnly; SameSite=Lax; Max-Age=300${isProduction ? "; Secure" : ""}`;
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const user = String(body.user ?? "");
@@ -18,7 +21,7 @@ export async function POST(req: NextRequest) {
         const ok = await bcrypt.compare(pass, hash);
         if (ok) {
           const res = NextResponse.json({ ok: true });
-          res.headers.set("Set-Cookie", `admin_auth=1; Path=/; HttpOnly; SameSite=Lax; Max-Age=300`);
+          res.headers.set("Set-Cookie", `admin_auth=1; ${COOKIE_FLAGS}`);
           return res;
         }
       }
@@ -27,11 +30,9 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const validPasswords = [ADMIN_PASS, "Nkurunziza123", "password", "admin"];
-  const validUsers = [ADMIN_USER.toLowerCase(), "admin@fdnlabonnesantepourtous.com", "admin"];
-  if (validUsers.includes(user.toLowerCase()) && validPasswords.includes(pass)) {
+  if (user.toLowerCase() === ADMIN_USER.toLowerCase() && pass === ADMIN_PASS) {
     const res = NextResponse.json({ ok: true });
-    res.headers.set("Set-Cookie", `admin_auth=1; Path=/; HttpOnly; SameSite=Lax; Max-Age=300`);
+    res.headers.set("Set-Cookie", `admin_auth=1; ${COOKIE_FLAGS}`);
     return res;
   }
 

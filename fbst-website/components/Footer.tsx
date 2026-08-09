@@ -9,7 +9,7 @@ export default function Footer() {
       {/* Cyan top border */}
       <div style={{ height: "3px", background: "#08B4D0" }} />
 
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 py-14 grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 py-14 grid gap-10 grid-cols-1 sm:grid-cols-2 md:grid-cols-[1.4fr_1fr_1fr]">
         {/* Brand */}
         <div>
           <div className="flex items-center gap-3 mb-5">
