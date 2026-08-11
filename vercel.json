@@ -1,6 +1,0 @@
-{
-  "buildCommand": "cd fbst-website && npm run build",
-  "installCommand": "cd fbst-website && npm install",
-  "outputDirectory": "fbst-website/.next",
-  "framework": "nextjs"
-}
