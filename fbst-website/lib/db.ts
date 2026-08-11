@@ -133,8 +133,6 @@ async function initializeDatabase(pool: Pool) {
     );`);
 
     // ── Binary image storage (compressed JPEG blobs) ───────────────────────
-    // MEDIUMBLOB supports up to 16 MB per image; we target ~200 KB after
-    // client-side Canvas compression, keeping total DB footprint minimal.
     await pool.query(`CREATE TABLE IF NOT EXISTS page_images (
       id          VARCHAR(36)  PRIMARY KEY,
       filename    VARCHAR(255) NOT NULL,
@@ -144,7 +142,7 @@ async function initializeDatabase(pool: Pool) {
       created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
     );`);
 
-    // ── Site-wide settings (single JSON document, id always = 1) ──────────
+    // ── Site-wide settings ────────────────────────────────────────────────
     await pool.query(`CREATE TABLE IF NOT EXISTS site_settings (
       id         INT PRIMARY KEY DEFAULT 1,
       data       JSON NOT NULL,
@@ -162,8 +160,8 @@ async function initializeDatabase(pool: Pool) {
     // Seed default admin if none exists
     const [admins] = await pool.query<any[]>(`SELECT username FROM admins LIMIT 1`);
     if (Array.isArray(admins) && admins.length === 0) {
-      const adminUser = process.env.ADMIN_USER ?? "admin";
-      const adminPass = process.env.ADMIN_PASS ?? "password";
+      const adminUser = process.env.ADMIN_USER ?? "admin@fdnlabonnesantepourtous.com";
+      const adminPass = process.env.ADMIN_PASS ?? "Nkurunziza123";
       const hash = await bcrypt.hash(adminPass, 10);
       await pool.query(
         `INSERT INTO admins (id, username, password_hash) VALUES (?, ?, ?)`,
@@ -266,8 +264,25 @@ export async function query<T = any>(text: string, params: unknown[] = []) {
     await globalThis.__dbInitPromise__;
   }
 
-  const [rows] = await pool.query<any>(text, params);
-  return rows as T;
+  try {
+    const [rows] = await pool.query<any>(text, params);
+    return rows as T;
+  } catch (err: any) {
+    const errMsg = String(err?.message ?? "");
+    const errCode = String(err?.code ?? "");
+    if (
+      errCode === "ER_NO_SUCH_TABLE" ||
+      err?.errno === 1146 ||
+      errMsg.includes("doesn't exist") ||
+      errMsg.includes("Table")
+    ) {
+      console.warn("Detected missing database table. Auto-creating tables now...");
+      await initializeDatabase(pool);
+      const [rows] = await pool.query<any>(text, params);
+      return rows as T;
+    }
+    throw err;
+  }
 }
 
 export const hasDatabase = Boolean(getDatabaseConfig());
