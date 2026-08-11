@@ -142,7 +142,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   // ── JSON file fallback ────────────────────────────────────────────────────
   for (const filePath of [TMP_SETTINGS_PATH, SETTINGS_PATH]) {
     try {
-      const raw = await fs.readFile(filePath, "utf-8");
+      const raw = await fs.readFile(/*turbopackIgnore: true*/ filePath, "utf-8");
       const data: SiteSettings = { ...defaultSettings, ...JSON.parse(raw) };
       globalThis.__memorySettingsCache__ = data;
       return data;
@@ -193,7 +193,7 @@ async function readFallbackContent(): Promise<PageContent[]> {
   if (globalThis.__memoryPagesCache__) return globalThis.__memoryPagesCache__;
   for (const filePath of [TMP_CONTENT_PATH, CONTENT_PATH]) {
     try {
-      const raw = await fs.readFile(filePath, "utf-8");
+      const raw = await fs.readFile(/*turbopackIgnore: true*/ filePath, "utf-8");
       const pages = JSON.parse(raw) as PageContent[];
       globalThis.__memoryPagesCache__ = pages;
       return pages;
@@ -345,7 +345,7 @@ async function readFallbackSubmissions(): Promise<ContactSubmission[]> {
   if (globalThis.__memorySubmissionsCache__) return globalThis.__memorySubmissionsCache__;
   for (const filePath of [TMP_SUBMISSIONS_PATH, SUBMISSIONS_PATH]) {
     try {
-      const raw = await fs.readFile(filePath, "utf-8");
+      const raw = await fs.readFile(/*turbopackIgnore: true*/ filePath, "utf-8");
       const items = JSON.parse(raw) as ContactSubmission[];
       globalThis.__memorySubmissionsCache__ = items;
       return items;

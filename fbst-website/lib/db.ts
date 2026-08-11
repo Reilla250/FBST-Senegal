@@ -63,11 +63,21 @@ function getDatabaseConfig() {
       // Raw PEM content passed as env var (Vercel production)
       sslCa = sslCaEnv.replace(/\\n/g, "\n");
     } else {
-      // File path (local development)
-      try {
-        sslCa = readFileSync(sslCaEnv, "utf-8");
-      } catch {
-        console.warn("DB_SSL_CA file not found:", sslCaEnv);
+      // File path (local dev or bundled in deployment)
+      const possiblePaths = [
+        sslCaEnv,
+        path.join(process.cwd(), sslCaEnv),
+        path.join(process.cwd(), "db", "isrgrootx1.pem"),
+        path.join(process.cwd(), "fbst-website", "db", "isrgrootx1.pem"),
+      ];
+      for (const p of possiblePaths) {
+        try {
+          sslCa = readFileSync(p, "utf-8");
+          if (sslCa) break;
+        } catch {}
+      }
+      if (!sslCa) {
+        console.warn("DB_SSL_CA file not found in paths:", sslCaEnv);
       }
     }
   }
