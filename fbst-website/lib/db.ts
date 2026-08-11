@@ -53,10 +53,28 @@ function getDatabaseConfig() {
     }
   }
 
-  const sslCaPath = process.env.DB_SSL_CA;
-  if (sslCaPath) {
+  // DB_SSL_CA can be either:
+  //   - A file path  e.g. "db/isrgrootx1.pem"  (local dev — file exists on disk)
+  //   - The raw PEM  e.g. "-----BEGIN CERTIFICATE-----\n..."  (Vercel — paste cert directly)
+  const sslCaEnv = process.env.DB_SSL_CA;
+  let sslCa: string | undefined;
+  if (sslCaEnv) {
+    if (sslCaEnv.trim().startsWith("-----BEGIN")) {
+      // Raw PEM content passed as env var (Vercel production)
+      sslCa = sslCaEnv.replace(/\\n/g, "\n");
+    } else {
+      // File path (local development)
+      try {
+        sslCa = readFileSync(sslCaEnv, "utf-8");
+      } catch {
+        console.warn("DB_SSL_CA file not found:", sslCaEnv);
+      }
+    }
+  }
+
+  if (sslCa) {
     config.ssl = {
-      ca: readFileSync(sslCaPath, "utf-8"),
+      ca: sslCa,
       rejectUnauthorized: true,
       servername: config.host,
     };
@@ -76,45 +94,85 @@ function getDatabaseConfig() {
 
 async function initializeDatabase(pool: Pool) {
   try {
-    const file = path.join(process.cwd(), "db", "init.sql");
-    const content = await fs.readFile(file, "utf-8");
-    const statements = content
-      .split(/;\s*(?:\r?\n|$)/)
-      .map((stmt) => stmt.trim())
-      .filter((stmt) => stmt.length > 0 && stmt.toLowerCase().startsWith("create table"));
-
-    for (const stmt of statements) {
-      await pool.query(stmt);
-    }
-
-    await pool.query(`CREATE TABLE IF NOT EXISTS admins (
-      id VARCHAR(36) PRIMARY KEY,
-      username VARCHAR(191) UNIQUE NOT NULL,
-      password_hash TEXT NOT NULL,
-      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    // ── Core content tables ────────────────────────────────────────────────
+    await pool.query(`CREATE TABLE IF NOT EXISTS pages (
+      slug            VARCHAR(191) PRIMARY KEY,
+      label           VARCHAR(191) NOT NULL,
+      title           VARCHAR(255) NOT NULL,
+      description     TEXT,
+      hero_heading    VARCHAR(255) NOT NULL,
+      hero_subheading VARCHAR(255),
+      hero_text       TEXT,
+      hero_cta_label  VARCHAR(191),
+      hero_cta_href   VARCHAR(512),
+      images          JSON NOT NULL DEFAULT (JSON_ARRAY()),
+      autoplay        BOOLEAN NOT NULL DEFAULT TRUE,
+      updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     );`);
 
+    await pool.query(`CREATE TABLE IF NOT EXISTS contact_submissions (
+      id               VARCHAR(36) PRIMARY KEY,
+      received_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      name             VARCHAR(191) NOT NULL,
+      contact          VARCHAR(255) NOT NULL,
+      reason           VARCHAR(255) NOT NULL,
+      preferred_method VARCHAR(255) NOT NULL,
+      preferred_time   VARCHAR(255),
+      message          TEXT NOT NULL,
+      consent          BOOLEAN NOT NULL
+    );`);
+
+    // ── Binary image storage (compressed JPEG blobs) ───────────────────────
+    // MEDIUMBLOB supports up to 16 MB per image; we target ~200 KB after
+    // client-side Canvas compression, keeping total DB footprint minimal.
+    await pool.query(`CREATE TABLE IF NOT EXISTS page_images (
+      id          VARCHAR(36)  PRIMARY KEY,
+      filename    VARCHAR(255) NOT NULL,
+      mime_type   VARCHAR(64)  NOT NULL DEFAULT 'image/jpeg',
+      size_bytes  INT UNSIGNED NOT NULL DEFAULT 0,
+      data        MEDIUMBLOB   NOT NULL,
+      created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );`);
+
+    // ── Site-wide settings (single JSON document, id always = 1) ──────────
+    await pool.query(`CREATE TABLE IF NOT EXISTS site_settings (
+      id         INT PRIMARY KEY DEFAULT 1,
+      data       JSON NOT NULL,
+      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );`);
+
+    // ── Admin accounts ────────────────────────────────────────────────────
+    await pool.query(`CREATE TABLE IF NOT EXISTS admins (
+      id            VARCHAR(36)  PRIMARY KEY,
+      username      VARCHAR(191) UNIQUE NOT NULL,
+      password_hash TEXT         NOT NULL,
+      created_at    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );`);
+
+    // Seed default admin if none exists
     const [admins] = await pool.query<any[]>(`SELECT username FROM admins LIMIT 1`);
     if (Array.isArray(admins) && admins.length === 0) {
       const adminUser = process.env.ADMIN_USER ?? "admin";
       const adminPass = process.env.ADMIN_PASS ?? "password";
       const hash = await bcrypt.hash(adminPass, 10);
-      await pool.query(`INSERT INTO admins (id, username, password_hash) VALUES (?, ?, ?)`, [
-        crypto.randomUUID(),
-        adminUser,
-        hash,
-      ]);
+      await pool.query(
+        `INSERT INTO admins (id, username, password_hash) VALUES (?, ?, ?)`,
+        [crypto.randomUUID(), adminUser, hash]
+      );
     }
 
+    // ── Seed sample pages (no-op if they already exist) ──────────────────
     const samplePages = [
       {
         slug: "home",
         label: "Home",
         title: "Trusted care in Dakar",
-        description: "FBST-Senegal provides youth-centred support rooted in safety, dignity and community.",
+        description:
+          "FBST-Senegal provides youth-centred support rooted in safety, dignity and community.",
         heroHeading: "Trusted pathways to care, education and protection in Dakar.",
         heroSubheading: "Community wellbeing",
-        heroText: "FBST-Senegal supports young people and communities with confidential peer guidance, safe referrals and strength-based programmes.",
+        heroText:
+          "FBST-Senegal supports young people and communities with confidential peer guidance, safe referrals and strength-based programmes.",
         heroCtaLabel: "Request support",
         heroCtaHref: "/contact",
         images: [
@@ -131,7 +189,8 @@ async function initializeDatabase(pool: Pool) {
         description: "Who FBST-Senegal is, our mission, vision, values and who we serve.",
         heroHeading: "Community-led wellbeing in Senegal",
         heroSubheading: "A trusted partner for people facing stigma, exclusion and distress.",
-        heroText: "Fondation La Bonne Santé Pour Tous is a youth-led organisation advancing mental wellbeing, safe referral and protection.",
+        heroText:
+          "Fondation La Bonne Santé Pour Tous is a youth-led organisation advancing mental wellbeing, safe referral and protection.",
         heroCtaLabel: "",
         heroCtaHref: "",
         images: [
@@ -145,17 +204,9 @@ async function initializeDatabase(pool: Pool) {
     for (const page of samplePages) {
       await pool.query(
         `INSERT INTO pages (
-          slug,
-          label,
-          title,
-          description,
-          hero_heading,
-          hero_subheading,
-          hero_text,
-          hero_cta_label,
-          hero_cta_href,
-          images,
-          autoplay
+          slug, label, title, description,
+          hero_heading, hero_subheading, hero_text,
+          hero_cta_label, hero_cta_href, images, autoplay
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE slug = slug;`,
         [
@@ -180,9 +231,7 @@ async function initializeDatabase(pool: Pool) {
 
 function getPool(): Pool | null {
   const config = getDatabaseConfig();
-  if (!config) {
-    return null;
-  }
+  if (!config) return null;
 
   if (!globalThis.__mysqlPool__) {
     globalThis.__mysqlPool__ = createPool({
@@ -190,7 +239,6 @@ function getPool(): Pool | null {
       waitForConnections: true,
       connectionLimit: 10,
       queueLimit: 0,
-      multipleStatements: true,
     });
     globalThis.__dbInitPromise__ = initializeDatabase(globalThis.__mysqlPool__);
   }

@@ -319,17 +319,22 @@ export default function AdminPageClient() {
       return null;
     }
     setSaving(true);
-    setStatus("Uploading image...");
+    setStatus("Compressing and uploading image…");
     try {
+      // ── Client-side compression ─────────────────────────────────────────
+      // Compress to JPEG ≤80 % quality, max 1 400 px wide, before sending to
+      // the server.  This keeps most uploads under ~200 KB, minimising TiDB
+      // BLOB storage usage.
+      const compressed = await compressImage(file, 1400, 0.8);
+
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", compressed, file.name.replace(/\.[^.]+$/, ".jpg"));
+
       const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      
+
       const resText = await res.text();
-      let data;
-      try {
-        data = JSON.parse(resText);
-      } catch {
+      let data: any;
+      try { data = JSON.parse(resText); } catch {
         setStatus(`Upload error (${res.status}): ${resText.slice(0, 150)}`);
         return null;
       }
@@ -339,30 +344,27 @@ export default function AdminPageClient() {
         const updatedForm = { ...form, images: newImages };
         setForm(updatedForm);
 
-        // Auto-save page content to persist the new image URL immediately
+        // Auto-save page content so the new image URL is persisted immediately
         const saveRes = await fetch("/api/admin/pages", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updatedForm),
         });
-
         const saveText = await saveRes.text();
-        let saveResult;
-        try {
-          saveResult = JSON.parse(saveText);
-        } catch {
-          saveResult = null;
-        }
+        let saveResult: any;
+        try { saveResult = JSON.parse(saveText); } catch { saveResult = null; }
 
-        if (saveRes.ok && saveResult && saveResult.ok) {
-          setPages((current) => current.filter((item) => item.slug !== saveResult.page.slug).concat(saveResult.page));
-          setStatus("✅ Image uploaded and saved to page!");
+        if (saveRes.ok && saveResult?.ok) {
+          setPages((current) =>
+            current.filter((item) => item.slug !== saveResult.page.slug).concat(saveResult.page)
+          );
+          setStatus(`✅ Image uploaded (${data.sizeKb ?? "?"}KB) and saved!`);
         } else {
-          setStatus("Image uploaded! Please click 'Save page content' to publish.");
+          setStatus("Image uploaded. Click 'Save page content' to publish.");
         }
 
         if (e) e.target.value = "";
-        return data.url;
+        return data.url as string;
       } else {
         setStatus(`Upload failed: ${data.error || "Unknown error"}`);
       }
@@ -371,6 +373,37 @@ export default function AdminPageClient() {
     } finally {
       setSaving(false);
     }
+    return null;
+  }
+
+  /** Compress an image file via an off-screen Canvas and return a JPEG Blob. */
+  function compressImage(file: File, maxWidth: number, quality: number): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const scale = Math.min(1, maxWidth / img.width);
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { resolve(file); return; }
+        ctx.drawImage(img, 0, 0, w, h);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) resolve(blob);
+            else resolve(file); // fallback: send original
+          },
+          "image/jpeg",
+          quality
+        );
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Image load failed")); };
+      img.src = url;
+    });
   }
 
   return (
@@ -619,8 +652,9 @@ export default function AdminPageClient() {
                               onClick={async () => {
                                 const newImgs = form.images.filter((i) => i !== imgUrl);
                                 setForm({ ...form, images: newImgs });
-                                // Delete file from server or Vercel Blob storage
-                                if (imgUrl.startsWith("/uploads/") || imgUrl.includes("blob.vercel-storage.com") || imgUrl.startsWith("https://")) {
+                                // Delete TiDB-stored images (/api/images/<uuid>).
+                                // External URLs (Unsplash, etc.) are just dereferenced — nothing to delete.
+                                if (imgUrl.startsWith("/api/images/")) {
                                   await fetch(`/api/admin/upload?file=${encodeURIComponent(imgUrl)}`, { method: "DELETE" }).catch(() => {});
                                 }
                               }}
