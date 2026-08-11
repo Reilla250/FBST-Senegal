@@ -53,6 +53,13 @@ function getDatabaseConfig() {
     }
   }
 
+  // TiDB Cloud restricts table creation in system schemas ('sys', 'mysql', etc.)
+  // Automatically fallback to the 'test' user database if 'sys' or no database is specified.
+  const systemDatabases = ["sys", "mysql", "information_schema", "performance_schema"];
+  if (!config.database || systemDatabases.includes(config.database.toLowerCase())) {
+    config.database = "test";
+  }
+
   // DB_SSL_CA can be either:
   //   - A file path  e.g. "db/isrgrootx1.pem"  (local dev — file exists on disk)
   //   - The raw PEM  e.g. "-----BEGIN CERTIFICATE-----\n..."  (Vercel — paste cert directly)
