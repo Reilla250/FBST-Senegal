@@ -72,7 +72,7 @@ function getDatabaseConfig() {
       ];
       for (const p of possiblePaths) {
         try {
-          sslCa = readFileSync(p, "utf-8");
+          sslCa = readFileSync(/*turbopackIgnore: true*/ p, "utf-8");
           if (sslCa) break;
         } catch {}
       }
