@@ -259,7 +259,7 @@ export async function getAllPageData(): Promise<PageContent[]> {
             heroCtaHref:    row.hero_cta_href     ? String(row.hero_cta_href)    : undefined,
             images:         finalImages,
             autoplay:       Boolean(row.autoplay),
-          } satisfies PageContent;
+          } as PageContent;
         });
       }
     } catch (err) {
