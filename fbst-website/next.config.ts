@@ -3,10 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   poweredByHeader: false,
 
-  turbopack: {
-    root: __dirname,
-  },
-
   // Allow serving images from Unsplash and external hosts.
   // Uploaded images are served from /api/images/[id] (same origin) so no
   // remote pattern is needed for those.
