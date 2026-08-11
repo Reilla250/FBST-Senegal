@@ -3,6 +3,8 @@ import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
 import FaqAccordion from "@/components/FaqAccordion";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "FAQ | FBST Senegal",
   description: "Frequently asked questions about FBST Senegal services, privacy, and contact.",

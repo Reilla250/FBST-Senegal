@@ -3,6 +3,8 @@ import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
 import { BulletList, Card, CTA } from "@/components/ui";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Partnerships",
   description: "Partner with FBST-Senegal on youth wellbeing, HIV prevention, protection and service quality.",

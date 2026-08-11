@@ -3,6 +3,8 @@ import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
 import { BulletList } from "@/components/ui";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "News and Resources",
   description: "Practical, non-identifying resources on youth wellbeing, HIV literacy and safeguarding from FBST-Senegal.",

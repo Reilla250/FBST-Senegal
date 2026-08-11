@@ -3,6 +3,8 @@ import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
 import { BulletList } from "@/components/ui";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Safeguarding, Confidentiality and Privacy",
   description: "How FBST-Senegal protects the people who contact, participate in or work with the organisation.",

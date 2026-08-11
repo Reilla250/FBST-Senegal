@@ -4,6 +4,8 @@ import Section from "@/components/Section";
 import StatGrid from "@/components/StatGrid";
 import { BulletList } from "@/components/ui";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Impact",
   description: "Documented results from NOUVEAU DÉPART and the SafeLink foundation for D-WiFI, reported honestly.",

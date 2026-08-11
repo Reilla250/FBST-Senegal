@@ -3,6 +3,8 @@ import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
 import { Card, ButtonRow } from "@/components/ui";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Get Involved",
   description: "Partner, fund, volunteer or request support from FBST-Senegal.",

@@ -4,6 +4,8 @@ import PageHero from "@/components/PageHero";
 import Section from "@/components/Section";
 import { Card } from "@/components/ui";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Successful Projects",
   description: "NOUVEAU DÉPART and Dakar Without Fear Initiative (D-WiFI) — FBST-Senegal's two flagship pathways.",

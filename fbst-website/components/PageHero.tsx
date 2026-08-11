@@ -3,13 +3,19 @@ import BackgroundSlideshow from "@/components/BackgroundSlideshow";
 import { getPageData } from "@/lib/cms";
 
 type Props = {
+  /** Fallback eyebrow if DB has no heroSubheading */
   eyebrow?: string;
-  heading: string;
+  /** Fallback heading if DB has no heroHeading */
+  heading?: string;
+  /** Fallback text if DB has no heroText */
   text?: string;
+  /** Fallback CTA label if DB has no heroCtaLabel */
   ctaLabel?: string;
+  /** Fallback CTA href if DB has no heroCtaHref */
   ctaHref?: string;
   images?: string[];
   autoplay?: boolean;
+  /** Page slug used to look up content from TiDB Cloud CMS */
   slug?: string;
   children?: ReactNode;
 };
@@ -25,11 +31,18 @@ export default async function PageHero({
   slug,
   children,
 }: Props) {
+  // Always load DB data when a slug is provided. DB values take priority so that
+  // admin edits are immediately reflected on the page.
   const page = slug ? await getPageData(slug) : null;
-  const heroImages = images.length > 0 ? images : page?.images ?? [];
-  const heroText = children ?? text ?? page?.heroText;
-  const heroCtaLabel = ctaLabel ?? page?.heroCtaLabel;
-  const heroCtaHref = ctaHref ?? page?.heroCtaHref;
+
+  // DB content wins; props are fallbacks only
+  const heroHeading  = page?.heroHeading  || heading   || "";
+  const heroEyebrow  = page?.heroSubheading || eyebrow;
+  const heroImages   = (page?.images?.length ?? 0) > 0 ? page!.images : images.length > 0 ? images : [];
+  const heroText     = children ?? page?.heroText ?? text;
+  const heroCtaLabel = page?.heroCtaLabel || ctaLabel;
+  const heroCtaHref  = page?.heroCtaHref  || ctaHref;
+  const heroAutoplay = page ? Boolean(page.autoplay) : autoplay;
 
   const hasImages = heroImages.length > 0;
 
@@ -44,7 +57,7 @@ export default async function PageHero({
       {/* Background image */}
       {hasImages && (
         <>
-          <BackgroundSlideshow images={heroImages} autoplay={autoplay && Boolean(heroImages.length)} />
+          <BackgroundSlideshow images={heroImages} autoplay={heroAutoplay && Boolean(heroImages.length)} />
           {/* Subtle overlay so background images are clearly visible while text remains high contrast */}
           <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(15,23,42,0.35) 0%, rgba(15,23,42,0.65) 100%)" }} />
         </>
@@ -64,17 +77,17 @@ export default async function PageHero({
       {/* Content */}
       <div className="relative z-20 mx-auto max-w-7xl px-5 sm:px-8 py-20 sm:py-28 flex flex-col items-start justify-center" style={{ minHeight: "480px" }}>
 
-        {eyebrow && (
+        {heroEyebrow && (
           <p
             className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase mb-5 px-3 py-1 rounded"
             style={{ background: "rgba(8,180,208,0.15)", color: "#08B4D0", border: "1px solid rgba(8,180,208,0.3)" }}
           >
-            {eyebrow}
+            {heroEyebrow}
           </p>
         )}
 
         <h1 className="font-display text-4xl sm:text-6xl font-bold max-w-3xl leading-tight mb-4" style={{ color: "#FFFFFF" }}>
-          {heading}
+          {heroHeading}
         </h1>
 
         {heroText && (
