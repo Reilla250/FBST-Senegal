@@ -416,9 +416,19 @@ export default function AdminPageClient() {
           <p className="text-sm text-slate-500 dark:text-slate-400">Complete power to modify pages, titles, programs, navigation, contact info & messages.</p>
         </div>
         {authenticated && (
-          <button onClick={handleLogout} className="btn-outline text-xs">
-            Sign out
-          </button>
+          <div className="flex items-center gap-2">
+            <a
+              href="https://privateemail.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded uppercase tracking-wider bg-teal-600 hover:bg-teal-700 text-white transition-colors shadow-sm"
+            >
+              ✉️ Business Email
+            </a>
+            <button onClick={handleLogout} className="btn-outline text-xs">
+              Sign out
+            </button>
+          </div>
         )}
       </div>
 
