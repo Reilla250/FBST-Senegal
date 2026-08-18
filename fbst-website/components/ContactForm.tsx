@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -16,6 +17,7 @@ const REASONS = [
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { t } = useLanguage();
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -59,18 +61,16 @@ export default function ContactForm() {
     return (
       <div className="rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/40 p-8 text-center">
         <p className="font-display text-xl font-bold text-blue-900 dark:text-blue-300 mb-2">
-          Thank you for contacting FBST.
+          {t("Thank you for contacting FBST.")}
         </p>
         <p className="text-slate-600 dark:text-slate-300 leading-relaxed max-w-md mx-auto text-sm">
-          Your message has been received. We will use the safe contact method you selected.
-          Please do not send additional sensitive information unless an authorised team
-          member requests it through a secure process.
+          {t("Your message has been received. We will use the safe contact method you selected. Please do not send additional sensitive information unless an authorised team member requests it through a secure process.")}
         </p>
         <button
           onClick={() => setStatus("idle")}
           className="mt-6 text-sm font-semibold text-blue-900 dark:text-blue-400 underline underline-offset-4 hover:text-blue-700 transition-colors"
         >
-          Send another message
+          {t("Send another message")}
         </button>
       </div>
     );
@@ -84,40 +84,40 @@ export default function ContactForm() {
         <input type="text" id="company_website" name="company_website" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <Field label="Name or preferred name" htmlFor="name" error={errors.name}>
+      <Field label={t("Name or preferred name")} htmlFor="name" error={errors.name}>
         <input id="name" name="name" type="text" className={inputClass} required maxLength={200} />
       </Field>
 
-      <Field label="Email or safe telephone number" htmlFor="contact" error={errors.contact}>
+      <Field label={t("Email or safe telephone number")} htmlFor="contact" error={errors.contact}>
         <input id="contact" name="contact" type="text" className={inputClass} required maxLength={200} />
       </Field>
 
-      <Field label="Reason for contact" htmlFor="reason" error={errors.reason}>
+      <Field label={t("Reason for contact")} htmlFor="reason" error={errors.reason}>
         <select id="reason" name="reason" className={inputClass} required defaultValue="">
-          <option value="" disabled>Choose a reason</option>
+          <option value="" disabled>{t("Choose a reason")}</option>
           {REASONS.map((r) => (
-            <option key={r.value} value={r.value}>{r.label}</option>
+            <option key={r.value} value={r.value}>{t(r.label)}</option>
           ))}
         </select>
       </Field>
 
-      <Field label="Preferred and safe contact method" htmlFor="preferredMethod" error={errors.preferredMethod}>
+      <Field label={t("Preferred and safe contact method")} htmlFor="preferredMethod" error={errors.preferredMethod}>
         <input
           id="preferredMethod"
           name="preferredMethod"
           type="text"
-          placeholder="e.g. email, phone call, WhatsApp"
+          placeholder={t("e.g. email, phone call, WhatsApp")}
           className={inputClass}
           required
           maxLength={100}
         />
       </Field>
 
-      <Field label="Preferred contact time (optional)" htmlFor="preferredTime">
+      <Field label={t("Preferred contact time (optional)")} htmlFor="preferredTime">
         <input id="preferredTime" name="preferredTime" type="text" className={inputClass} maxLength={100} />
       </Field>
 
-      <Field label="Short message" htmlFor="message" error={errors.message}>
+      <Field label={t("Short message")} htmlFor="message" error={errors.message}>
         <textarea
           id="message"
           name="message"
@@ -125,14 +125,14 @@ export default function ContactForm() {
           className={inputClass}
           required
           maxLength={4000}
-          placeholder="Do not include unnecessary sensitive information."
+          placeholder={t("Do not include unnecessary sensitive information.")}
         />
       </Field>
 
       <label className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300">
         <input type="checkbox" id="consent" name="consent" className="mt-1 h-4 w-4 accent-blue-900" required />
         <span>
-          I consent to FBST contacting me using the method above.
+          {t("I consent to FBST contacting me using the method above.")}
           {errors.consent && <span className="block text-red-600 dark:text-red-400 font-medium mt-1">{errors.consent}</span>}
         </span>
       </label>
@@ -148,11 +148,12 @@ export default function ContactForm() {
         disabled={status === "submitting"}
         className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        {status === "submitting" ? "Sending…" : "Send message →"}
+        {status === "submitting" ? t("Sending...") : t("Send message →")}
       </button>
     </form>
   );
 }
+
 
 const inputClass =
   "w-full rounded border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all"
