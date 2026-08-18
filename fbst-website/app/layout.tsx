@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AdminBar from "@/components/AdminBar";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.fdnlabonnesantepourtous.org"),
@@ -39,11 +40,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{const key='theme';const stored=localStorage.getItem(key);const prefers=window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;const theme = stored || (prefers ? 'dark' : 'light'); document.documentElement.classList.add(theme==='dark' ? 'theme-dark' : 'theme-light');}catch(e){} })()` }} />
       </head>
       <body className="antialiased flex min-h-screen flex-col">
-        <AdminBar />
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <LanguageProvider>
+          <AdminBar />
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </LanguageProvider>
       </body>
     </html>
   );
 }
+

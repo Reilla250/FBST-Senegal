@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { footerNav } from "@/lib/nav";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer style={{ background: "#1A1F2B", color: "#A8B2BF" }}>
       {/* Cyan top border */}
@@ -24,10 +27,7 @@ export default function Footer() {
             </span>
           </div>
           <p className="text-sm leading-relaxed max-w-sm" style={{ color: "#6B7785" }}>
-            Fondation La Bonne Santé Pour Tous (FBST-Senegal) is a community-rooted,
-            youth-led organisation in Dakar advancing mental wellbeing, education
-            inclusion, HIV prevention, confidential referral, psychosocial support
-            and protection.
+            {t("Fondation La Bonne Santé Pour Tous (FBST-Senegal) is a community-rooted, youth-led organisation in Dakar advancing mental wellbeing, education inclusion, HIV prevention, confidential referral, psychosocial support and protection.")}
           </p>
           <div className="mt-6">
             <Link
@@ -35,7 +35,7 @@ export default function Footer() {
               className="btn-outline"
               style={{ fontSize: "0.75rem" }}
             >
-              Contact us →
+              {t("Contact us")} →
             </Link>
           </div>
         </div>
@@ -46,7 +46,7 @@ export default function Footer() {
             className="block text-xs font-bold uppercase tracking-widest mb-5"
             style={{ color: "#08B4D0" }}
           >
-            Quick links
+            {t("Quick Links")}
           </span>
           <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
             {footerNav.map((item) => (
@@ -58,7 +58,7 @@ export default function Footer() {
                   onMouseEnter={(e) => (e.currentTarget.style.color = "#08B4D0")}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "#6B7785")}
                 >
-                  {item.label}
+                  {t(item.label)}
                 </Link>
               </li>
             ))}
@@ -68,7 +68,7 @@ export default function Footer() {
                 className="transition-colors font-bold"
                 style={{ color: "#08B4D0" }}
               >
-                🔐 Admin Portal
+                🔐 {t("Admin")}
               </Link>
             </li>
           </ul>
@@ -80,11 +80,11 @@ export default function Footer() {
             className="block text-xs font-bold uppercase tracking-widest mb-5"
             style={{ color: "#08B4D0" }}
           >
-            Contact
+            {t("Contact")}
           </span>
           <ul className="space-y-2.5 text-sm" style={{ color: "#6B7785" }}>
-            <li>📍 Dakar, Senegal</li>
-            <li>🔢 Registration No. 978</li>
+            <li>📍 {t("Dakar, Sénégal")}</li>
+            <li>🔢 {t("Registered Association No.")} 978</li>
             <li>
               <a
                 href="mailto:info@fdnlabonnesantepourtous.org"
@@ -116,13 +116,12 @@ export default function Footer() {
       <div style={{ borderTop: "1px solid #252B38" }}>
         <div className="mx-auto max-w-7xl px-5 sm:px-8 py-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs" style={{ color: "#4A5260" }}>
           <p className="max-w-lg leading-relaxed">
-            FBST provides information, peer support, navigation and referral. Clinical and
-            emergency services are delivered by qualified providers. We protect confidentiality
-            and do not publish participant identities or sensitive referral locations.
+            {t("FBST provides information, peer support, navigation and referral. Clinical and emergency services are delivered by qualified providers. We protect confidentiality and do not publish participant identities or sensitive referral locations.")}
           </p>
-          <p className="shrink-0">© {new Date().getFullYear()} FBST-Senegal</p>
+          <p className="shrink-0">© {new Date().getFullYear()} FBST-Senegal. {t("All rights reserved.")}</p>
         </div>
       </div>
     </footer>
   );
 }
+

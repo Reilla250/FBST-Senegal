@@ -4,9 +4,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { primaryNav } from "@/lib/nav";
 import ThemeToggle from "./ThemeToggle";
+import LanguageToggle from "./LanguageToggle";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <header className="sticky top-0 z-50 shadow-lg" style={{ background: "#1E2430" }}>
@@ -32,7 +35,7 @@ export default function Header() {
               FBST-Senegal
             </span>
             <span className="block text-xs font-medium tracking-wide" style={{ color: "#8C939E" }}>
-              Dakar, Sénégal
+              {t("Dakar, Sénégal")}
             </span>
           </span>
         </Link>
@@ -48,21 +51,23 @@ export default function Header() {
               onMouseEnter={(e) => (e.currentTarget.style.color = "#08B4D0")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "#A8B2BF")}
             >
-              {item.label}
+              {t(item.label)}
             </Link>
           ))}
         </nav>
 
-        {/* Desktop CTA & Theme Toggle */}
+        {/* Desktop CTA, Language Toggle & Theme Toggle */}
         <div className="hidden lg:flex items-center gap-3 shrink-0">
           <Link href="/contact" className="btn-primary">
-            Get support
+            {t("Get support")}
           </Link>
+          <LanguageToggle />
           <ThemeToggle />
         </div>
 
-        {/* Mobile: Theme Toggle + Hamburger */}
+        {/* Mobile: Language Toggle + Theme Toggle + Hamburger */}
         <div className="flex items-center gap-2 lg:hidden">
+          <LanguageToggle />
           <ThemeToggle />
           <button
             className="inline-flex h-10 w-10 items-center justify-center rounded border text-lg font-bold transition-colors"
@@ -107,7 +112,7 @@ export default function Header() {
                   (e.currentTarget as HTMLElement).style.background = "transparent";
                 }}
               >
-                {item.label}
+                {t(item.label)}
               </Link>
             ))}
             <div className="pt-2 pb-1">
@@ -117,7 +122,7 @@ export default function Header() {
                 className="btn-primary w-full justify-center text-center"
                 style={{ display: "flex" }}
               >
-                Get support
+                {t("Get support")}
               </Link>
             </div>
           </nav>
@@ -126,3 +131,4 @@ export default function Header() {
     </header>
   );
 }
+
